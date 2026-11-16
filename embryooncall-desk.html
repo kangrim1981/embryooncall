@@ -1,0 +1,1620 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>EmbryoOnCall Desk</title>
+    <style>
+      :root {
+        --bg: #0a1622;
+        --bg-2: #0e1f30;
+        --panel: #12283d;
+        --panel-2: #17334d;
+        --line: #23405c;
+        --ink: #e8f1f8;
+        --ink-2: #a9c0d4;
+        --ink-3: #6f8aa3;
+        --teal: #2dd4bf;
+        --teal-deep: #0d9488;
+        --teal-ink: #06281f;
+        --amber: #fbbf24;
+        --red: #f87171;
+        --green: #34d399;
+        --radius: 12px;
+        --font: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+        --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font);
+        font-size: 16px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2.25rem; }
+      a { color: var(--teal); }
+      .hidden { display: none !important; }
+
+      /* ---------- Lock screen ---------- */
+      .lock-wrap {
+        min-height: 100dvh;
+        display: flex; align-items: flex-start; justify-content: center;
+        padding: 48px 16px 64px;
+        background:
+          radial-gradient(900px 480px at 50% -120px, rgba(45,212,191,.14), transparent 60%),
+          var(--bg);
+      }
+      .lock-card {
+        width: 100%; max-width: 430px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 30px 26px 26px;
+        box-shadow: 0 24px 60px rgba(0,0,0,.45);
+      }
+      .brand { font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+      .brand .on { color: var(--teal); }
+      .lock-sub { color: var(--ink-2); margin: 6px 0 22px; font-size: 15px; }
+      .lock-card h1 { font-size: 20px; margin: 0 0 4px; }
+      .lock-card .hint { color: var(--ink-3); font-size: 13.5px; margin: 0 0 16px; }
+      .pin-input {
+        width: 100%;
+        font-size: 26px; letter-spacing: .45em; text-align: center;
+        padding: 12px 10px;
+        background: var(--bg-2); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 10px;
+        font-family: var(--mono);
+      }
+      .pin-input:focus { outline: 2px solid var(--teal-deep); border-color: var(--teal-deep); }
+      .btn {
+        appearance: none; border: 0; cursor: pointer;
+        font: inherit; font-weight: 600;
+        border-radius: 10px; padding: 10px 18px;
+        background: var(--panel-2); color: var(--ink);
+        border: 1px solid var(--line);
+        min-height: 44px;
+      }
+      .btn:hover { border-color: var(--teal-deep); }
+      .btn.primary { background: var(--teal); color: var(--teal-ink); border-color: var(--teal); }
+      .btn.primary:hover { background: #5eead4; }
+      .btn.danger { color: var(--red); }
+      .btn.small { min-height: 38px; padding: 6px 12px; font-size: 14px; border-radius: 8px; }
+      .btn.block { width: 100%; margin-top: 14px; }
+      .btn:disabled { opacity: .55; cursor: wait; }
+      .alert { border-radius: 10px; padding: 11px 14px; font-size: 14.5px; margin: 14px 0 0; }
+      .alert-error { background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.45); color: #fecaca; }
+      .alert-ok { background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.4); color: #a7f3d0; }
+      .alert-warn { background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.4); color: #fde68a; }
+      details.setup-details { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 14px; }
+      details.setup-details summary { cursor: pointer; color: var(--ink-2); font-size: 14px; font-weight: 600; padding: 6px 0; }
+      details.setup-details p, details.setup-details li { color: var(--ink-2); font-size: 13.5px; }
+      pre.rules {
+        background: #071120; border: 1px solid var(--line); border-radius: 10px;
+        padding: 12px; font-family: var(--mono); font-size: 11.5px; line-height: 1.5;
+        overflow-x: auto; white-space: pre; color: #c8e6df; max-height: 340px; overflow-y: auto;
+      }
+
+      /* ---------- Desk shell ---------- */
+      .topbar {
+        position: sticky; top: 0; z-index: 30;
+        background: rgba(10,22,34,.92); backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
+      }
+      .topbar-in {
+        max-width: 1180px; margin: 0 auto; padding: 12px 18px;
+        display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      }
+      .topbar .brand { font-size: 20px; }
+      .topbar .brand small { color: var(--ink-3); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-left: 6px; }
+      .topbar .spacer { flex: 1; }
+      .session-note { color: var(--ink-3); font-size: 13px; }
+      .tabs {
+        max-width: 1180px; margin: 0 auto; padding: 0 18px;
+        display: flex; gap: 4px; flex-wrap: wrap;
+      }
+      .tab-btn {
+        appearance: none; border: 0; background: transparent; cursor: pointer;
+        color: var(--ink-2); font: inherit; font-weight: 600; font-size: 15px;
+        padding: 10px 14px; min-height: 44px;
+        border-bottom: 3px solid transparent;
+      }
+      .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+      .tab-btn .count {
+        background: var(--panel-2); border: 1px solid var(--line); color: var(--ink-2);
+        border-radius: 999px; font-size: 12px; padding: 1px 8px; margin-left: 6px;
+      }
+      .wrap { max-width: 1180px; margin: 0 auto; padding: 22px 18px 80px; }
+      .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+      .stat {
+        background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+        padding: 12px 16px; min-width: 128px; flex: 1 1 128px;
+      }
+      .stat .n { font-size: 24px; font-weight: 700; }
+      .stat .l { color: var(--ink-3); font-size: 12.5px; text-transform: uppercase; letter-spacing: .07em; }
+      .section-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 6px 0 14px; }
+      .section-head h2 { margin: 0; font-size: 21px; }
+      .section-head .spacer { flex: 1; }
+      .section-head p { margin: 0; color: var(--ink-3); font-size: 14px; width: 100%; }
+
+      .card {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+      }
+      .card-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+      .card-head .name { font-size: 17.5px; font-weight: 700; }
+      .card-head .sub { color: var(--ink-2); font-size: 14px; }
+      .card-head .spacer { flex: 1; }
+      .rate-chip {
+        background: rgba(45,212,191,.13); color: var(--teal);
+        border: 1px solid rgba(45,212,191,.35);
+        font-weight: 700; font-size: 14px; border-radius: 999px; padding: 3px 12px;
+      }
+      .src-chip {
+        font-size: 12px; font-weight: 700; letter-spacing: .04em;
+        border-radius: 999px; padding: 3px 10px; border: 1px solid var(--line); color: var(--ink-2);
+      }
+      .src-chip.portal { color: var(--amber); border-color: rgba(251,191,36,.4); }
+      dl.fields { display: grid; grid-template-columns: 128px 1fr; gap: 4px 14px; margin: 12px 0 0; font-size: 14.5px; }
+      dl.fields dt { color: var(--ink-3); }
+      dl.fields dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+      .card-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+      .empty-state {
+        border: 1px dashed var(--line); border-radius: var(--radius);
+        color: var(--ink-3); padding: 26px 18px; text-align: center; font-size: 15px;
+      }
+      .status-pill { font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 3px 11px; text-transform: capitalize; }
+      .status-new { background: rgba(251,191,36,.14); color: var(--amber); border: 1px solid rgba(251,191,36,.4); }
+      .status-matched { background: rgba(96,165,250,.14); color: #93c5fd; border: 1px solid rgba(96,165,250,.4); }
+      .status-assigned { background: rgba(45,212,191,.14); color: var(--teal); border: 1px solid rgba(45,212,191,.4); }
+      .status-done { background: rgba(52,211,153,.14); color: var(--green); border: 1px solid rgba(52,211,153,.4); }
+      select.status-select, select.inv-select {
+        background: var(--bg-2); color: var(--ink); border: 1px solid var(--line);
+        border-radius: 8px; padding: 6px 8px; font: inherit; font-size: 14px; min-height: 38px;
+      }
+      .money-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+      .money-cell { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+      .money-cell .l { color: var(--ink-3); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+      .money-cell .v { font-size: 18px; font-weight: 700; margin-top: 2px; }
+      .money-cell .s { color: var(--ink-2); font-size: 13px; }
+      .match-ok { color: var(--green); font-weight: 700; }
+      .match-no { color: var(--ink-3); font-size: 13.5px; }
+      .reason { color: var(--amber); font-size: 13px; }
+
+      /* ---------- Modal / forms ---------- */
+      .overlay {
+        position: fixed; inset: 0; z-index: 60;
+        background: rgba(3,9,16,.72);
+        display: flex; align-items: flex-start; justify-content: center;
+        overflow-y: auto; padding: 22px 12px 40px;
+      }
+      .modal {
+        width: 100%; max-width: 640px;
+        background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+        padding: 22px 22px 18px; box-shadow: 0 24px 60px rgba(0,0,0,.5);
+      }
+      .modal h3 { margin: 0 0 4px; font-size: 19px; }
+      .modal .hint { color: var(--ink-3); font-size: 13.5px; margin: 0 0 14px; }
+      .field { display: block; margin-bottom: 12px; }
+      .field > span { display: block; font-size: 13.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 5px; }
+      .field .req { color: var(--teal); }
+      .field input[type="text"], .field input[type="email"], .field input[type="tel"],
+      .field input[type="number"], .field input[type="date"], .field select, .field textarea {
+        width: 100%; background: var(--bg-2); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 9px;
+        padding: 9px 11px; font: inherit; font-size: 15px;
+      }
+      .field textarea { min-height: 64px; resize: vertical; }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+      .checkgrid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+        gap: 2px 12px; margin-bottom: 14px;
+      }
+      .checkgrid.states { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); max-height: 168px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+      label.check { display: flex; align-items: center; gap: 9px; padding: 7px 4px; cursor: pointer; font-size: 14.5px; border-radius: 6px; }
+      label.check input { width: 19px; height: 19px; accent-color: var(--teal-deep); flex: none; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+      .chip {
+        background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px;
+        font-size: 13px; padding: 4px 6px 4px 12px; display: inline-flex; align-items: center; gap: 6px;
+      }
+      .chip button {
+        appearance: none; border: 0; background: rgba(248,113,113,.16); color: var(--red);
+        width: 24px; height: 24px; min-height: 24px; border-radius: 999px; cursor: pointer; font-size: 14px; line-height: 1;
+      }
+      .date-add { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+      .date-add .field { flex: 1 1 180px; margin-bottom: 0; }
+      .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+      .form-section { font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--teal); margin: 18px 0 10px; }
+      .toast {
+        position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+        background: var(--panel-2); border: 1px solid var(--teal-deep); color: var(--ink);
+        border-radius: 10px; padding: 11px 18px; font-size: 14.5px; z-index: 90;
+        box-shadow: 0 12px 30px rgba(0,0,0,.5); max-width: calc(100vw - 32px); text-align: center;
+      }
+      .inv-table { width: 100%; }
+      .inv-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+      .inv-row .grow { flex: 1 1 200px; }
+      @media (max-width: 620px) {
+        .grid2 { grid-template-columns: 1fr; }
+        dl.fields { grid-template-columns: 104px 1fr; }
+        .lock-wrap { padding-top: 26px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= LOCK SCREEN ================= -->
+    <div id="lockView" class="lock-wrap">
+      <div class="lock-card">
+        <div class="brand">Embryo<span class="on">OnCall</span></div>
+        <p class="lock-sub">Desk — private, for Ken only.</p>
+
+        <div id="lockLoading">
+          <h1>Checking the desk lock…</h1>
+          <p class="hint">One moment.</p>
+        </div>
+
+        <form id="createPinForm" class="hidden" autocomplete="off">
+          <h1>Create your desk PIN</h1>
+          <p class="hint">First open — there's no PIN yet. Pick a PIN you'll remember. It's stored only as a salted hash and it signs you into the desk's Firebase account, so the roster, labs, requests and invoices stay unreadable to anyone without it.</p>
+          <label class="field"><span>New PIN (4–8 digits)</span>
+            <input class="pin-input" id="createPin1" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8" />
+          </label>
+          <label class="field"><span>Enter it again</span>
+            <input class="pin-input" id="createPin2" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8" />
+          </label>
+          <div id="createPinError" class="alert alert-error hidden"></div>
+          <button class="btn primary block" id="btnCreatePin" type="submit">Create PIN &amp; open desk</button>
+        </form>
+
+        <form id="unlockForm" class="hidden" autocomplete="off">
+          <h1>Enter your desk PIN</h1>
+          <p class="hint">Unlocking keeps you signed in on this device for 30 days. Use “Lock desk” any time to sign out.</p>
+          <label class="field"><span>PIN</span>
+            <input class="pin-input" id="unlockPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8" />
+          </label>
+          <div id="unlockError" class="alert alert-error hidden"></div>
+          <button class="btn primary block" id="btnUnlock" type="submit">Unlock desk</button>
+        </form>
+
+        <div id="lockError" class="alert alert-error hidden"></div>
+
+        <details class="setup-details" id="lockSetupDetails">
+          <summary>First-time setup: turn on the lock in Firebase (one-time)</summary>
+          <p>The PIN only protects the data once these Firestore rules are in place. In the Firebase console for <strong>embryooncall-travelers</strong>: Firestore Database → Rules → paste the rules below → Publish. They keep the traveler portal working exactly as now, and limit the desk data (labs, requests, assignments, invoices) and the full roster to the desk sign-in.</p>
+          <button class="btn small" type="button" id="btnCopyRulesLock">Copy Firestore rules</button>
+          <pre class="rules" id="rulesPreLock"></pre>
+          <p>Resumes also need a Storage rule so only you (and the traveler who uploaded it) can open them: Storage → Rules → paste:</p>
+          <button class="btn small" type="button" id="btnCopyStorageLock">Copy Storage rules</button>
+          <pre class="rules" id="storagePreLock"></pre>
+        </details>
+      </div>
+    </div>
+
+    <!-- ================= DESK ================= -->
+    <div id="deskView" class="hidden">
+      <div class="topbar">
+        <div class="topbar-in">
+          <div class="brand">Embryo<span class="on">OnCall</span><small>Desk</small></div>
+          <div class="spacer"></div>
+          <span class="session-note" id="sessionNote"></span>
+          <button class="btn small" id="btnLock" type="button">Lock desk</button>
+        </div>
+        <nav class="tabs" id="tabs">
+          <button class="tab-btn active" data-tab="roster" type="button">Roster<span class="count" id="countRoster">0</span></button>
+          <button class="tab-btn" data-tab="labs" type="button">Labs<span class="count" id="countLabs">0</span></button>
+          <button class="tab-btn" data-tab="requests" type="button">Requests<span class="count" id="countRequests">0</span></button>
+          <button class="tab-btn" data-tab="assignments" type="button">Assignments<span class="count" id="countAssignments">0</span></button>
+          <button class="tab-btn" data-tab="invoices" type="button">Invoices</button>
+          <button class="tab-btn" data-tab="setup" type="button">Setup &amp; security</button>
+        </nav>
+      </div>
+
+      <div class="wrap">
+        <div id="deskAlert" class="alert alert-warn hidden" style="margin:0 0 16px"></div>
+        <div class="stats" id="statsRow"></div>
+
+        <section id="tab-roster">
+          <div class="section-head">
+            <h2>Roster</h2><div class="spacer"></div>
+            <button class="btn primary" id="btnAddTraveler" type="button">Add traveler manually</button>
+            <p>Everyone who signs up through the traveler portal appears here automatically. Manual entries are for travelers who haven't signed up.</p>
+          </div>
+          <div id="rosterList"></div>
+        </section>
+
+        <section id="tab-labs" class="hidden">
+          <div class="section-head">
+            <h2>Labs</h2><div class="spacer"></div>
+            <button class="btn primary" id="btnAddLab" type="button">Add lab</button>
+          </div>
+          <div id="labsList"></div>
+        </section>
+
+        <section id="tab-requests" class="hidden">
+          <div class="section-head">
+            <h2>Coverage requests</h2><div class="spacer"></div>
+            <button class="btn primary" id="btnAddRequest" type="button">New request</button>
+            <p>“Find matches” shows travelers who have every skill needed, travel to the lab's state, and are available on every requested date.</p>
+          </div>
+          <div id="matchPanel"></div>
+          <div id="requestsList"></div>
+        </section>
+
+        <section id="tab-assignments" class="hidden">
+          <div class="section-head">
+            <h2>Assignments</h2><div class="spacer"></div>
+            <button class="btn primary" id="btnAddAssignment" type="button">New assignment</button>
+            <p>Deposit = 50% of (day rate × days) + commission. Final = remaining 50% + travel at exact cost. Card totals add the 2.9% card fee; ACH totals don't.</p>
+          </div>
+          <div id="assignmentsList"></div>
+        </section>
+
+        <section id="tab-invoices" class="hidden">
+          <div class="section-head">
+            <h2>Invoices</h2>
+            <p>Amounts are computed here; the invoices themselves are issued in the Stripe dashboard. Mark each one as you send and collect it.</p>
+          </div>
+          <div id="invoicesList"></div>
+        </section>
+
+        <section id="tab-setup" class="hidden">
+          <div class="section-head"><h2>Setup &amp; security</h2></div>
+          <div class="card">
+            <div class="card-head"><span class="name">How the PIN lock works</span></div>
+            <dl class="fields">
+              <dt>PIN storage</dt><dd>Only a salted hash (PBKDF2-SHA256) is kept — the PIN itself is never stored or shown.</dd>
+              <dt>Enforcement</dt><dd>Your PIN derives the password of the desk's Firebase Auth account (<span id="deskEmailEcho"></span>). No sign-in, no data: Firestore rules limit the roster, labs, requests, assignments and invoices to that account.</dd>
+              <dt>Session</dt><dd>Unlocking signs you in for 30 days on this device. “Lock desk” signs you out immediately.</dd>
+              <dt>Data</dt><dd>Everything lives in the same Firebase project as the traveler portal (embryooncall-travelers), so portal sign-ups land in this roster on their own.</dd>
+            </dl>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="name">Change PIN</span></div>
+            <form id="changePinForm" autocomplete="off" style="margin-top:12px">
+              <div class="grid2">
+                <label class="field"><span>Current PIN</span><input class="pin-input" style="font-size:19px" id="cpCurrent" type="password" inputmode="numeric" maxlength="8" /></label>
+                <label class="field"><span>New PIN (4–8 digits)</span><input class="pin-input" style="font-size:19px" id="cpNew" type="password" inputmode="numeric" maxlength="8" /></label>
+              </div>
+              <div id="changePinMsg" class="alert hidden"></div>
+              <button class="btn" type="submit" id="btnChangePin">Change PIN</button>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="name">Firestore rules</span></div>
+            <p style="color:var(--ink-2); font-size:14px">If the desk shows “permission denied”, these rules haven't been published yet. Firebase console → embryooncall-travelers → Firestore Database → Rules → paste → Publish.</p>
+            <button class="btn small" type="button" id="btnCopyRulesSetup">Copy Firestore rules</button>
+            <pre class="rules" id="rulesPreSetup"></pre>
+            <p style="color:var(--ink-2); font-size:14px; margin-top:16px">Storage rules for resumes (Storage → Rules):</p>
+            <button class="btn small" type="button" id="btnCopyStorageSetup">Copy Storage rules</button>
+            <pre class="rules" id="storagePreSetup"></pre>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="modalRoot"></div>
+    <div id="toastRoot"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script>
+      "use strict";
+
+      var firebaseConfig = {
+        apiKey: "AIzaSyBcq6TAI3hM-IN1s5NBt_OHA4f5t_IfMAY",
+        authDomain: "embryooncall-travelers.firebaseapp.com",
+        projectId: "embryooncall-travelers",
+        storageBucket: "embryooncall-travelers.firebasestorage.app",
+        messagingSenderId: "628697252893",
+        appId: "1:628697252893:web:ee197cb07d66560274f2f4"
+      };
+
+      var DESK_EMAIL = "desk@embryooncall.com";
+      var SESSION_KEY = "eoc_desk_session_until";
+      var SESSION_MS = 30 * 24 * 60 * 60 * 1000;
+      var POSITIONS = ["Senior Embryologist", "Andrologist-CLS", "MA", "Sonographer", "Nurse"];
+      var SKILLS = [
+        "oocyte retrieval",
+        "sperm preparation for insemination",
+        "in-vitro fertilization (IVF)",
+        "fertilization check",
+        "embryo evaluation",
+        "selection of embryos for transfer and vitrification",
+        "embryo vitrification",
+        "embryo thawing",
+        "embryo transfer",
+        "surgical sperm retrieval and processing",
+        "cell to tube transfer of embryo biopsy material",
+        "micromanipulation",
+        "ICSI",
+        "assisted hatching",
+        "embryo biopsy"
+      ];
+      var STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"];
+      var REQ_STATUSES = ["new", "matched", "assigned", "done"];
+      var INV_STATUSES = ["not sent", "sent", "paid", "voided"];
+
+      var FIRESTORE_RULES = [
+        "rules_version = '2';",
+        "service cloud.firestore {",
+        "  match /databases/{database}/documents {",
+        "    function signedIn() { return request.auth != null; }",
+        "    function isDesk() {",
+        "      return signedIn() && request.auth.token.email in [",
+        "        'desk@embryooncall.com',",
+        "        'ken@embryooncall.com',",
+        "        'kangrim1981@gmail.com'",
+        "      ];",
+        "    }",
+        "    // Desk lock: holds only the PIN salt + salted hash. Readable so the",
+        "    // desk can tell whether a PIN exists before sign-in; creatable once.",
+        "    match /desk_meta/config {",
+        "      allow read: if true;",
+        "      allow create: if !exists(/databases/$(database)/documents/desk_meta/config);",
+        "      allow update: if isDesk();",
+        "      allow delete: if false;",
+        "    }",
+        "    // Username directory the traveler portal uses at sign-in.",
+        "    match /usernames/{name} {",
+        "      allow read: if true;",
+        "      allow write: if signedIn();",
+        "    }",
+        "    // Traveler profiles: the traveler's own doc, or the desk.",
+        "    match /travelers/{uid} {",
+        "      allow read: if isDesk() || (signedIn() && request.auth.uid == uid);",
+        "      allow create, update: if isDesk() || (signedIn() && request.auth.uid == uid);",
+        "      allow delete: if isDesk();",
+        "    }",
+        "    // Desk-only business data.",
+        "    match /labs/{id} { allow read, write: if isDesk(); }",
+        "    match /requests/{id} { allow read, write: if isDesk(); }",
+        "    match /assignments/{id} { allow read, write: if isDesk(); }",
+        "    // Placements a traveler can see in the portal (no money fields).",
+        "    match /traveler_assignments/{id} {",
+        "      allow read: if isDesk() || (signedIn() && resource.data.travelerId == request.auth.uid);",
+        "      allow write: if isDesk();",
+        "    }",
+        "  }",
+        "}"
+      ].join("\n");
+
+      var STORAGE_RULES = [
+        "rules_version = '2';",
+        "service firebase.storage {",
+        "  match /b/{bucket}/o {",
+        "    match /resumes/{uid}/{file} {",
+        "      allow read: if request.auth != null && (",
+        "        request.auth.uid == uid ||",
+        "        request.auth.token.email in [",
+        "          'desk@embryooncall.com',",
+        "          'ken@embryooncall.com',",
+        "          'kangrim1981@gmail.com'",
+        "        ]);",
+        "      allow write: if request.auth != null && request.auth.uid == uid;",
+        "    }",
+        "  }",
+        "}"
+      ].join("\n");
+
+      /* ---------------- Firebase init ---------------- */
+      var auth = null, db = null, storage = null, firebaseReady = false;
+      if (typeof firebase !== "undefined") {
+        try {
+          firebase.initializeApp(firebaseConfig);
+          auth = firebase.auth();
+          db = firebase.firestore();
+          storage = firebase.storage();
+          firebaseReady = true;
+          auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
+        } catch (e) { firebaseReady = false; }
+      }
+
+      /* ---------------- Helpers ---------------- */
+      function $(id) { return document.getElementById(id); }
+      function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      }
+      function showMsg(el, msg, kind) {
+        el.textContent = msg;
+        el.className = "alert " + (kind === "ok" ? "alert-ok" : kind === "warn" ? "alert-warn" : "alert-error");
+      }
+      function hideMsg(el) { el.textContent = ""; el.classList.add("hidden"); }
+      function toast(msg) {
+        var t = document.createElement("div");
+        t.className = "toast"; t.textContent = msg;
+        $("toastRoot").appendChild(t);
+        setTimeout(function () { t.remove(); }, 3400);
+      }
+      function todayISO() {
+        var d = new Date();
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      }
+      function prettyDate(iso) {
+        var parts = String(iso || "").split("-");
+        if (parts.length !== 3) return String(iso || "");
+        var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        if (isNaN(d.getTime())) return String(iso);
+        return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+      }
+      function prettyShort(iso) {
+        var parts = String(iso || "").split("-");
+        if (parts.length !== 3) return String(iso || "");
+        var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        if (isNaN(d.getTime())) return String(iso);
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      }
+      function dateRange(start, end) {
+        var out = [];
+        if (!start || !end) return out;
+        var a = start.split("-"), b = end.split("-");
+        var cur = new Date(Date.UTC(+a[0], +a[1] - 1, +a[2]));
+        var last = new Date(Date.UTC(+b[0], +b[1] - 1, +b[2]));
+        var guard = 0;
+        while (cur <= last && guard < 366) {
+          out.push(cur.getUTCFullYear() + "-" + String(cur.getUTCMonth() + 1).padStart(2, "0") + "-" + String(cur.getUTCDate()).padStart(2, "0"));
+          cur.setUTCDate(cur.getUTCDate() + 1);
+          guard++;
+        }
+        return out;
+      }
+      function money(n) {
+        var v = Math.round((Number(n) || 0) * 100) / 100;
+        return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      function ts() { return firebase.firestore.FieldValue.serverTimestamp(); }
+
+      /* ---------------- PIN crypto (PBKDF2-SHA256) ---------------- */
+      function bytesToHex(bytes) {
+        var s = "";
+        bytes.forEach(function (b) { s += ("0" + b.toString(16)).slice(-2); });
+        return s;
+      }
+      function hexToBytes(hex) {
+        var out = new Uint8Array(hex.length / 2);
+        for (var i = 0; i < out.length; i++) out[i] = parseInt(hex.substr(i * 2, 2), 16);
+        return out;
+      }
+      function randomHex(nBytes) {
+        var a = new Uint8Array(nBytes);
+        crypto.getRandomValues(a);
+        return bytesToHex(a);
+      }
+      function deriveKey(pin, saltHex) {
+        var enc = new TextEncoder();
+        return crypto.subtle.importKey("raw", enc.encode(pin), "PBKDF2", false, ["deriveBits"])
+          .then(function (base) {
+            return crypto.subtle.deriveBits(
+              { name: "PBKDF2", salt: hexToBytes(saltHex), iterations: 150000, hash: "SHA-256" },
+              base, 256);
+          })
+          .then(function (bits) { return bytesToHex(new Uint8Array(bits)); });
+      }
+      function sha256Hex(text) {
+        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text))
+          .then(function (h) { return bytesToHex(new Uint8Array(h)); });
+      }
+      function pinToPassword(keyHex) { return "EOC#" + keyHex; }
+      function validPin(pin) { return /^[0-9]{4,8}$/.test(pin || ""); }
+
+      /* ---------------- Desk state ---------------- */
+      var travelers = [], labs = [], requests = [], assignments = [];
+      var unsubs = [];
+      var deskEntered = false;
+      var matchRequestId = null;
+
+      function labsById() { var m = {}; labs.forEach(function (l) { m[l.id] = l; }); return m; }
+      function travelersById() { var m = {}; travelers.forEach(function (t) { m[t.id] = t; }); return m; }
+      function requestsById() { var m = {}; requests.forEach(function (r) { m[r.id] = r; }); return m; }
+
+      function sessionUntil() {
+        var v = null;
+        try { v = window.localStorage.getItem(SESSION_KEY); } catch (e) {}
+        return v ? Number(v) : 0;
+      }
+      function startSession() {
+        try { window.localStorage.setItem(SESSION_KEY, String(Date.now() + SESSION_MS)); } catch (e) {}
+      }
+      function endSession() {
+        try { window.localStorage.removeItem(SESSION_KEY); } catch (e) {}
+      }
+
+      /* ---------------- Lock screen flow ---------------- */
+      function showLock(mode, errText) {
+        deskEntered = false;
+        unsubs.forEach(function (u) { try { u(); } catch (e) {} });
+        unsubs = [];
+        $("deskView").classList.add("hidden");
+        $("lockView").classList.remove("hidden");
+        $("lockLoading").classList.add("hidden");
+        $("createPinForm").classList.toggle("hidden", mode !== "create");
+        $("unlockForm").classList.toggle("hidden", mode !== "unlock");
+        var le = $("lockError");
+        if (errText) showMsg(le, errText, "error"); else hideMsg(le);
+        var focusEl = mode === "create" ? $("createPin1") : $("unlockPin");
+        if (focusEl) setTimeout(function () { focusEl.focus(); }, 60);
+      }
+
+      function checkLockState() {
+        if (!firebaseReady) {
+          $("lockLoading").classList.add("hidden");
+          showMsg($("lockError"), "Couldn't load the sign-in service. Check your connection and reload the page.", "error");
+          $("lockSetupDetails").open = true;
+          return;
+        }
+        var user = auth.currentUser;
+        if (user && user.email === DESK_EMAIL) {
+          if (sessionUntil() && sessionUntil() > Date.now()) { enterDesk(); return; }
+          if (!sessionUntil()) { startSession(); enterDesk(); return; }
+          auth.signOut().then(function () { showLock("unlock", "Your 30-day session ended — enter your PIN to unlock."); });
+          return;
+        }
+        db.collection("desk_meta").doc("config").get()
+          .then(function (snap) { showLock(snap.exists ? "unlock" : "create"); })
+          .catch(function (err) {
+            if (err && err.code === "permission-denied") {
+              // Rules not published yet: we can't tell whether a PIN exists.
+              // Show the unlock form and open the setup steps.
+              showLock("unlock");
+              $("lockSetupDetails").open = true;
+              showMsg($("lockError"), "The desk can't read its lock settings yet — the Firestore rules in the setup section below need to be published once (Firebase console → Firestore Database → Rules). If this is your first open and the rules are already in, use “Create PIN” after publishing.", "warn");
+              $("createPinForm").classList.remove("hidden");
+            } else {
+              showLock("unlock", "Couldn't check the desk lock (" + (err && err.code ? err.code : "network error") + "). Check your connection and reload.");
+            }
+          });
+      }
+
+      $("createPinForm").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var errBox = $("createPinError"); hideMsg(errBox);
+        var pin1 = $("createPin1").value.trim(), pin2 = $("createPin2").value.trim();
+        if (!validPin(pin1)) { showMsg(errBox, "PIN must be 4–8 digits.", "error"); return; }
+        if (pin1 !== pin2) { showMsg(errBox, "The two PINs don't match.", "error"); return; }
+        var btn = $("btnCreatePin"); btn.disabled = true; btn.textContent = "Creating…";
+        var salt = randomHex(16);
+        var keyHex = null;
+        deriveKey(pin1, salt)
+          .then(function (k) { keyHex = k; return sha256Hex(k); })
+          .then(function (verifier) {
+            return auth.createUserWithEmailAndPassword(DESK_EMAIL, pinToPassword(keyHex))
+              .then(function () {
+                return db.collection("desk_meta").doc("config").set({
+                  salt: salt, verifier: verifier, createdAt: ts()
+                });
+              });
+          })
+          .then(function () {
+            btn.disabled = false; btn.textContent = "Create PIN & open desk";
+            startSession();
+            enterDesk();
+            toast("PIN created — desk unlocked.");
+          })
+          .catch(function (err) {
+            btn.disabled = false; btn.textContent = "Create PIN & open desk";
+            if (err && err.code === "auth/email-already-in-use") {
+              showMsg(errBox, "A desk PIN was already created on another device. Use the unlock form with that PIN instead.", "error");
+              showLock("unlock");
+            } else if (err && err.code === "permission-denied") {
+              showMsg(errBox, "Your account was created but saving the lock settings was denied — publish the Firestore rules from the setup section below, then unlock with the PIN you just chose.", "error");
+              $("lockSetupDetails").open = true;
+            } else {
+              showMsg(errBox, "Couldn't create the PIN (" + (err && err.code ? err.code : "error") + "). Try again.", "error");
+            }
+          });
+      });
+
+      $("unlockForm").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var errBox = $("unlockError"); hideMsg(errBox);
+        var pin = $("unlockPin").value.trim();
+        if (!validPin(pin)) { showMsg(errBox, "Enter your 4–8 digit PIN.", "error"); return; }
+        var btn = $("btnUnlock"); btn.disabled = true; btn.textContent = "Unlocking…";
+        db.collection("desk_meta").doc("config").get()
+          .then(function (snap) {
+            if (!snap.exists) throw { code: "no-pin-yet" };
+            return deriveKey(pin, snap.data().salt);
+          })
+          .then(function (keyHex) { return auth.signInWithEmailAndPassword(DESK_EMAIL, pinToPassword(keyHex)); })
+          .then(function () {
+            btn.disabled = false; btn.textContent = "Unlock desk";
+            $("unlockPin").value = "";
+            startSession();
+            enterDesk();
+          })
+          .catch(function (err) {
+            btn.disabled = false; btn.textContent = "Unlock desk";
+            if (err && err.code === "no-pin-yet") {
+              showMsg(errBox, "No PIN has been created yet — use the create form.", "error");
+              showLock("create");
+            } else if (err && (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential" || err.code === "auth/user-not-found")) {
+              showMsg(errBox, "That PIN doesn't match. Try again.", "error");
+            } else if (err && err.code === "permission-denied") {
+              showMsg(errBox, "The desk lock settings are blocked — publish the Firestore rules from the setup section below first.", "error");
+              $("lockSetupDetails").open = true;
+            } else {
+              showMsg(errBox, "Unlock failed (" + (err && err.code ? err.code : "error") + "). Check your connection and try again.", "error");
+            }
+          });
+      });
+
+      $("btnLock").addEventListener("click", function () {
+        endSession();
+        if (auth) auth.signOut();
+        showLock("unlock");
+        toast("Desk locked.");
+      });
+
+      /* ---------------- Change PIN ---------------- */
+      $("changePinForm").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var msg = $("changePinMsg"); hideMsg(msg);
+        var cur = $("cpCurrent").value.trim(), nw = $("cpNew").value.trim();
+        if (!validPin(cur) || !validPin(nw)) { showMsg(msg, "Both PINs must be 4–8 digits.", "error"); return; }
+        var btn = $("btnChangePin"); btn.disabled = true; btn.textContent = "Changing…";
+        db.collection("desk_meta").doc("config").get()
+          .then(function (snap) {
+            if (!snap.exists) throw { code: "no-config" };
+            return deriveKey(cur, snap.data().salt);
+          })
+          .then(function (oldKey) {
+            var cred = firebase.auth.EmailAuthProvider.credential(DESK_EMAIL, pinToPassword(oldKey));
+            return auth.currentUser.reauthenticateWithCredential(cred);
+          })
+          .then(function () {
+            var salt = randomHex(16);
+            return deriveKey(nw, salt).then(function (newKey) {
+              return sha256Hex(newKey).then(function (verifier) {
+                return auth.currentUser.updatePassword(pinToPassword(newKey))
+                  .then(function () {
+                    return db.collection("desk_meta").doc("config").set(
+                      { salt: salt, verifier: verifier, updatedAt: ts() }, { merge: true });
+                  });
+              });
+            });
+          })
+          .then(function () {
+            btn.disabled = false; btn.textContent = "Change PIN";
+            $("cpCurrent").value = ""; $("cpNew").value = "";
+            showMsg(msg, "PIN changed.", "ok");
+          })
+          .catch(function (err) {
+            btn.disabled = false; btn.textContent = "Change PIN";
+            if (err && (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential")) {
+              showMsg(msg, "Current PIN doesn't match.", "error");
+            } else {
+              showMsg(msg, "Couldn't change the PIN (" + (err && err.code ? err.code : "error") + ").", "error");
+            }
+          });
+      });
+
+      /* ---------------- Enter desk / data subscriptions ---------------- */
+      function enterDesk() {
+        if (deskEntered) { renderAll(); return; }
+        deskEntered = true;
+        $("lockView").classList.add("hidden");
+        $("deskView").classList.remove("hidden");
+        $("deskEmailEcho").textContent = DESK_EMAIL;
+        var until = sessionUntil();
+        $("sessionNote").textContent = until
+          ? "Unlocked until " + new Date(until).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          : "";
+        subscribeAll();
+      }
+
+      function subscribeAll() {
+        var permDeniedShown = false;
+        function onErr(label) {
+          return function (err) {
+            if (err && err.code === "permission-denied" && !permDeniedShown) {
+              permDeniedShown = true;
+              var a = $("deskAlert");
+              a.innerHTML = "Firestore is refusing " + esc(label) + " — the desk rules haven't been published yet, or this sign-in isn't in them. Open <strong>Setup &amp; security</strong> and paste the rules into the Firebase console (Firestore Database → Rules → Publish), then reload.";
+              a.classList.remove("hidden");
+            }
+          };
+        }
+        unsubs.push(db.collection("travelers").onSnapshot(function (qs) {
+          travelers = [];
+          qs.forEach(function (d) { var t = d.data(); t.id = d.id; travelers.push(t); });
+          travelers.sort(function (a, b) { return String(a.fullName || "") < String(b.fullName || "") ? -1 : 1; });
+          renderRoster(); renderStats(); renderMatchesIfOpen();
+        }, onErr("the roster")));
+        unsubs.push(db.collection("labs").onSnapshot(function (qs) {
+          labs = [];
+          qs.forEach(function (d) { var l = d.data(); l.id = d.id; labs.push(l); });
+          labs.sort(function (a, b) { return String(a.name || "") < String(b.name || "") ? -1 : 1; });
+          renderLabs(); renderStats(); renderRequests(); renderMatchesIfOpen();
+        }, onErr("labs")));
+        unsubs.push(db.collection("requests").onSnapshot(function (qs) {
+          requests = [];
+          qs.forEach(function (d) { var r = d.data(); r.id = d.id; requests.push(r); });
+          requests.sort(function (a, b) { return String(a.startDate || "") < String(b.startDate || "") ? -1 : 1; });
+          renderRequests(); renderStats(); renderMatchesIfOpen();
+        }, onErr("requests")));
+        unsubs.push(db.collection("assignments").onSnapshot(function (qs) {
+          assignments = [];
+          qs.forEach(function (d) { var a = d.data(); a.id = d.id; assignments.push(a); });
+          assignments.sort(function (a, b) { return String(a.startDate || "") < String(b.startDate || "") ? -1 : 1; });
+          renderAssignments(); renderInvoices(); renderStats();
+        }, onErr("assignments")));
+      }
+
+      function renderAll() { renderStats(); renderRoster(); renderLabs(); renderRequests(); renderAssignments(); renderInvoices(); }
+
+      /* ---------------- Tabs ---------------- */
+      $("tabs").addEventListener("click", function (ev) {
+        var btn = ev.target.closest("[data-tab]");
+        if (!btn) return;
+        var name = btn.getAttribute("data-tab");
+        document.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.toggle("active", b === btn); });
+        ["roster", "labs", "requests", "assignments", "invoices", "setup"].forEach(function (t) {
+          $("tab-" + t).classList.toggle("hidden", t !== name);
+        });
+      });
+      function goTab(name) {
+        var btn = document.querySelector('.tab-btn[data-tab="' + name + '"]');
+        if (btn) btn.click();
+      }
+
+      /* ---------------- Stats ---------------- */
+      function computeMoney(a) {
+        var rate = Number(a.dayRate) || 0, days = Number(a.days) || 0;
+        var pct = Number(a.commissionPct) || 0;
+        var travel = Number(a.travelCost) || 0;
+        var labor = rate * days;
+        var commission = labor * pct / 100;
+        var deposit = labor * 0.5 + commission;
+        var finalAmt = labor * 0.5 + travel;
+        var total = labor + commission + travel;
+        return {
+          labor: labor, commission: commission, deposit: deposit, finalAmt: finalAmt, total: total,
+          depositCard: deposit * 1.029, finalCard: finalAmt * 1.029, totalCard: total * 1.029
+        };
+      }
+      function renderStats() {
+        $("countRoster").textContent = travelers.length;
+        $("countLabs").textContent = labs.length;
+        $("countRequests").textContent = requests.filter(function (r) { return r.status !== "done"; }).length;
+        $("countAssignments").textContent = assignments.length;
+        var openReq = requests.filter(function (r) { return r.status === "new" || r.status === "matched"; }).length;
+        var awaiting = 0;
+        assignments.forEach(function (a) {
+          var m = computeMoney(a);
+          if (a.depositStatus === "sent") awaiting += m.deposit;
+          if (a.finalStatus === "sent") awaiting += m.finalAmt;
+        });
+        $("statsRow").innerHTML =
+          '<div class="stat"><div class="n">' + travelers.length + '</div><div class="l">Travelers</div></div>' +
+          '<div class="stat"><div class="n">' + labs.length + '</div><div class="l">Labs</div></div>' +
+          '<div class="stat"><div class="n">' + openReq + '</div><div class="l">Open requests</div></div>' +
+          '<div class="stat"><div class="n">' + assignments.length + '</div><div class="l">Assignments</div></div>' +
+          '<div class="stat"><div class="n">' + money(awaiting) + '</div><div class="l">Sent, awaiting pay (ACH)</div></div>';
+      }
+
+      /* ---------------- Roster ---------------- */
+      function renderRoster() {
+        var list = $("rosterList");
+        if (!travelers.length) {
+          list.innerHTML = '<div class="empty-state">No travelers yet. Sign-ups from the traveler portal appear here automatically — or add one manually.</div>';
+          return;
+        }
+        list.innerHTML = travelers.map(function (t, i) {
+          var avail = (t.availability || []).slice().sort();
+          var availText = avail.length
+            ? avail.slice(0, 10).map(prettyShort).join(", ") + (avail.length > 10 ? " … (" + avail.length + " days)" : "")
+            : "—";
+          var isPortal = !!(t.username || t.authEmail);
+          return '<div class="card">' +
+            '<div class="card-head"><span class="name">' + esc(t.fullName || "(no name)") + '</span>' +
+            '<span class="sub">' + esc(t.title || "") + '</span>' +
+            (t.desiredRate != null && t.desiredRate !== "" ? '<span class="rate-chip">' + money(t.desiredRate) + ' / day wanted</span>' : "") +
+            '<span class="spacer"></span>' +
+            '<span class="src-chip' + (isPortal ? " portal" : "") + '">' + (isPortal ? "Portal sign-up" : "Manual entry") + '</span></div>' +
+            '<dl class="fields">' +
+            '<dt>Base city</dt><dd>' + esc(t.baseCity || "—") + '</dd>' +
+            '<dt>Contact</dt><dd>' + esc(t.email || "—") + (t.phone ? " · " + esc(t.phone) : "") + '</dd>' +
+            '<dt>Experience</dt><dd>' + (t.yearsExperience != null && t.yearsExperience !== "" ? esc(t.yearsExperience) + " years" : "—") + '</dd>' +
+            '<dt>License #</dt><dd>' + esc(t.licenseNumber || "—") + (t.licensesCerts ? ' <span style="color:var(--ink-3)">(' + esc(t.licensesCerts) + ')</span>' : "") + '</dd>' +
+            '<dt>Skills</dt><dd>' + esc((t.skills || []).join(", ") || "—") + '</dd>' +
+            '<dt>Travel states</dt><dd>' + esc((t.states || []).join(", ") || "—") + '</dd>' +
+            '<dt>Availability</dt><dd>' + esc(availText) + '</dd>' +
+            '<dt>Signed</dt><dd>' + (t.signatureDate ? esc(prettyDate(t.signatureDate)) + (t.signature ? " — " + esc(t.signature) : "") : "—") + '</dd>' +
+            '<dt>Resume</dt><dd data-resume-cell="' + i + '">' + (t.resumePath ? "Loading link…" : (t.resumeName ? esc(t.resumeName) + " (no file path)" : "—")) + '</dd>' +
+            '</dl>' +
+            '<div class="card-actions">' +
+            '<button class="btn small" data-act="edit-traveler" data-id="' + esc(t.id) + '" type="button">Edit</button>' +
+            '<button class="btn small danger" data-act="del-traveler" data-id="' + esc(t.id) + '" type="button">Delete</button>' +
+            '</div></div>';
+        }).join("");
+        travelers.forEach(function (t, i) {
+          if (!t.resumePath || !storage) return;
+          storage.ref(t.resumePath).getDownloadURL()
+            .then(function (url) {
+              var cell = list.querySelector('[data-resume-cell="' + i + '"]');
+              if (cell) cell.innerHTML = '<a href="' + esc(url) + '" target="_blank" rel="noopener">Download resume' + (t.resumeName ? " (" + esc(t.resumeName) + ")" : "") + '</a>';
+            })
+            .catch(function () {
+              var cell = list.querySelector('[data-resume-cell="' + i + '"]');
+              if (cell) cell.textContent = (t.resumeName || "Resume on file") + " — link unavailable (check Storage rules)";
+            });
+        });
+      }
+
+      /* ---------------- Labs ---------------- */
+      function renderLabs() {
+        var list = $("labsList");
+        if (!labs.length) {
+          list.innerHTML = '<div class="empty-state">No labs yet. Add the first lab to start taking requests.</div>';
+          return;
+        }
+        list.innerHTML = labs.map(function (l) {
+          var where = [l.city, l.state].filter(Boolean).join(", ");
+          return '<div class="card">' +
+            '<div class="card-head"><span class="name">' + esc(l.name || "(unnamed lab)") + '</span>' +
+            (where ? '<span class="sub">' + esc(where) + '</span>' : "") + '</div>' +
+            '<dl class="fields">' +
+            '<dt>Contact</dt><dd>' + esc(l.contactName || "—") + (l.phone ? " · " + esc(l.phone) : "") + '</dd>' +
+            '<dt>Billing email</dt><dd>' + esc(l.email || "—") + '</dd>' +
+            (l.notes ? '<dt>Notes</dt><dd>' + esc(l.notes) + '</dd>' : "") +
+            '</dl>' +
+            '<div class="card-actions">' +
+            '<button class="btn small" data-act="edit-lab" data-id="' + esc(l.id) + '" type="button">Edit</button>' +
+            '<button class="btn small" data-act="new-request-for-lab" data-id="' + esc(l.id) + '" type="button">New request</button>' +
+            '<button class="btn small danger" data-act="del-lab" data-id="' + esc(l.id) + '" type="button">Delete</button>' +
+            '</div></div>';
+        }).join("");
+      }
+
+      /* ---------------- Requests + matching ---------------- */
+      function requestDates(r) { return dateRange(r.startDate, r.endDate); }
+      function matchCheck(t, r, lab) {
+        var reasons = [];
+        var tSkills = {};
+        (t.skills || []).forEach(function (s) { tSkills[s] = true; });
+        var missingSkills = (r.skillsNeeded || []).filter(function (s) { return !tSkills[s]; });
+        if (missingSkills.length) reasons.push("missing skills: " + missingSkills.join(", "));
+        if (lab && lab.state) {
+          if ((t.states || []).indexOf(lab.state) < 0) reasons.push("doesn't travel to " + lab.state);
+        }
+        var dates = requestDates(r);
+        var availSet = {};
+        (t.availability || []).forEach(function (d) { availSet[d] = true; });
+        var missingDates = dates.filter(function (d) { return !availSet[d]; });
+        if (dates.length && missingDates.length) {
+          reasons.push("not available: " + missingDates.slice(0, 4).map(prettyShort).join(", ") + (missingDates.length > 4 ? " …" : ""));
+        }
+        if (!dates.length) reasons.push("request has no dates");
+        return { ok: reasons.length === 0, reasons: reasons };
+      }
+
+      function renderRequests() {
+        var list = $("requestsList");
+        var lm = labsById();
+        if (!requests.length) {
+          list.innerHTML = '<div class="empty-state">No requests yet. Create one when a lab asks for coverage.</div>';
+          return;
+        }
+        list.innerHTML = requests.map(function (r) {
+          var lab = lm[r.labId];
+          var labName = r.labName || (lab ? lab.name : "(lab deleted)");
+          var where = lab ? [lab.city, lab.state].filter(Boolean).join(", ") : "";
+          var dates = r.startDate ? prettyDate(r.startDate) + (r.endDate && r.endDate !== r.startDate ? " – " + prettyDate(r.endDate) : "") : "—";
+          var statusOpts = REQ_STATUSES.map(function (s) {
+            return '<option value="' + s + '"' + (r.status === s ? " selected" : "") + '>' + s + '</option>';
+          }).join("");
+          return '<div class="card">' +
+            '<div class="card-head"><span class="name">' + esc(labName) + '</span>' +
+            '<span class="sub">' + esc(r.position || "") + (where ? " · " + esc(where) : "") + '</span>' +
+            '<span class="spacer"></span><span class="status-pill status-' + esc(r.status || "new") + '">' + esc(r.status || "new") + '</span></div>' +
+            '<dl class="fields">' +
+            '<dt>Dates</dt><dd>' + esc(dates) + ' (' + requestDates(r).length + ' day' + (requestDates(r).length === 1 ? "" : "s") + ')</dd>' +
+            '<dt>Skills needed</dt><dd>' + esc((r.skillsNeeded || []).join(", ") || "—") + '</dd>' +
+            (r.notes ? '<dt>Notes</dt><dd>' + esc(r.notes) + '</dd>' : "") +
+            '</dl>' +
+            '<div class="card-actions">' +
+            '<button class="btn small primary" data-act="find-matches" data-id="' + esc(r.id) + '" type="button">Find matches</button>' +
+            '<button class="btn small" data-act="edit-request" data-id="' + esc(r.id) + '" type="button">Edit</button>' +
+            '<label style="display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink-2)">Status ' +
+            '<select class="status-select" data-req-status="' + esc(r.id) + '">' + statusOpts + '</select></label>' +
+            '<button class="btn small danger" data-act="del-request" data-id="' + esc(r.id) + '" type="button">Delete</button>' +
+            '</div></div>';
+        }).join("");
+      }
+
+      function renderMatchesIfOpen() {
+        if (matchRequestId) renderMatches(matchRequestId, true);
+      }
+
+      function renderMatches(reqId, keepScroll) {
+        var panel = $("matchPanel");
+        var r = requestsById()[reqId];
+        if (!r) { panel.innerHTML = ""; matchRequestId = null; return; }
+        matchRequestId = reqId;
+        var lab = labsById()[r.labId];
+        var labName = r.labName || (lab ? lab.name : "(lab deleted)");
+        var dates = requestDates(r);
+        var matches = [], near = [];
+        travelers.forEach(function (t) {
+          var chk = matchCheck(t, r, lab);
+          if (chk.ok) matches.push(t); else near.push({ t: t, reasons: chk.reasons });
+        });
+        var matchCards = matches.length ? matches.map(function (t) {
+          return '<div class="card" style="border-color:var(--teal-deep)">' +
+            '<div class="card-head"><span class="name">' + esc(t.fullName || "(no name)") + '</span>' +
+            '<span class="sub">' + esc(t.title || "") + ' · ' + esc(t.baseCity || "") + '</span>' +
+            (t.desiredRate != null && t.desiredRate !== "" ? '<span class="rate-chip">' + money(t.desiredRate) + ' / day wanted</span>' : "") +
+            '<span class="spacer"></span><span class="match-ok">Full match</span></div>' +
+            '<dl class="fields">' +
+            '<dt>Experience</dt><dd>' + (t.yearsExperience != null && t.yearsExperience !== "" ? esc(t.yearsExperience) + " years" : "—") + (t.licenseNumber ? " · License #" + esc(t.licenseNumber) : "") + '</dd>' +
+            '<dt>Contact</dt><dd>' + esc(t.email || "—") + (t.phone ? " · " + esc(t.phone) : "") + '</dd>' +
+            '</dl>' +
+            '<div class="card-actions"><button class="btn small primary" data-act="assign" data-req="' + esc(r.id) + '" data-trav="' + esc(t.id) + '" type="button">Assign ' + esc((t.fullName || "traveler").split(" ")[0]) + '</button></div>' +
+            '</div>';
+        }).join("") : '<div class="empty-state">No traveler matches all three: every skill, travel to ' + esc(lab && lab.state ? lab.state : "the lab's state") + ', and availability on all ' + dates.length + ' date(s).</div>';
+        var nearHtml = near.length ? '<div class="card"><div class="card-head"><span class="name" style="font-size:15.5px">Not matching</span></div>' +
+          near.map(function (n) {
+            return '<p style="margin:8px 0 0;font-size:14.5px"><strong>' + esc(n.t.fullName || "(no name)") + '</strong> — <span class="reason">' + esc(n.reasons.join("; ")) + '</span></p>';
+          }).join("") + '</div>' : "";
+        panel.innerHTML = '<div class="card" style="background:var(--bg-2)">' +
+          '<div class="card-head"><span class="name">Matches for ' + esc(labName) + ' — ' + esc(r.position || "") + '</span><span class="spacer"></span>' +
+          '<button class="btn small" data-act="close-matches" type="button">Close</button></div>' +
+          '<p style="color:var(--ink-2);font-size:14.5px;margin:8px 0 14px">' +
+          (r.startDate ? esc(prettyDate(r.startDate)) + (r.endDate && r.endDate !== r.startDate ? " – " + esc(prettyDate(r.endDate)) : "") : "") +
+          ' · ' + dates.length + ' day(s) · skills: ' + esc((r.skillsNeeded || []).join(", ") || "none specified") + '</p>' +
+          matchCards + nearHtml + '</div>';
+        if (!keepScroll) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      /* ---------------- Assignments ---------------- */
+      function assignmentTitle(a) {
+        return (a.labName || "Lab") + " — " + (a.travelerName || "Traveler");
+      }
+      function renderAssignments() {
+        var list = $("assignmentsList");
+        if (!assignments.length) {
+          list.innerHTML = '<div class="empty-state">No assignments yet. Create one from a request’s “Find matches”, or with “New assignment”.</div>';
+          return;
+        }
+        list.innerHTML = assignments.map(function (a) {
+          var m = computeMoney(a);
+          var dates = a.startDate ? prettyDate(a.startDate) + (a.endDate && a.endDate !== a.startDate ? " – " + prettyDate(a.endDate) : "") : "—";
+          return '<div class="card">' +
+            '<div class="card-head"><span class="name">' + esc(assignmentTitle(a)) + '</span>' +
+            '<span class="sub">' + esc(a.position || "") + '</span><span class="spacer"></span>' +
+            '<span class="status-pill status-assigned">' + esc(dates) + '</span></div>' +
+            '<div class="money-grid">' +
+            '<div class="money-cell"><div class="l">Labor</div><div class="v">' + money(m.labor) + '</div><div class="s">' + money(a.dayRate) + ' × ' + esc(a.days) + ' days</div></div>' +
+            '<div class="money-cell"><div class="l">Commission ' + esc(a.commissionPct) + '%</div><div class="v">' + money(m.commission) + '</div><div class="s">' + (Number(a.commissionPct) === 7 ? "multi-day rate" : "standard rate") + '</div></div>' +
+            '<div class="money-cell"><div class="l">Travel</div><div class="v">' + money(a.travelCost) + '</div><div class="s">at exact cost</div></div>' +
+            '<div class="money-cell"><div class="l">Deposit due</div><div class="v">' + money(m.deposit) + '</div><div class="s">card ' + money(m.depositCard) + '</div></div>' +
+            '<div class="money-cell"><div class="l">Final due</div><div class="v">' + money(m.finalAmt) + '</div><div class="s">card ' + money(m.finalCard) + '</div></div>' +
+            '<div class="money-cell"><div class="l">Total (ACH)</div><div class="v">' + money(m.total) + '</div><div class="s">card total ' + money(m.totalCard) + '</div></div>' +
+            '</div>' +
+            (a.notes ? '<dl class="fields"><dt>Notes</dt><dd>' + esc(a.notes) + '</dd></dl>' : "") +
+            '<dl class="fields">' +
+            '<dt>Deposit invoice</dt><dd>' + esc(a.depositStatus || "not sent") + '</dd>' +
+            '<dt>Final invoice</dt><dd>' + esc(a.finalStatus || "not sent") + '</dd>' +
+            '</dl>' +
+            '<div class="card-actions">' +
+            '<button class="btn small" data-act="edit-assignment" data-id="' + esc(a.id) + '" type="button">Edit</button>' +
+            '<button class="btn small" data-act="goto-invoices" type="button">Invoices</button>' +
+            '<button class="btn small danger" data-act="del-assignment" data-id="' + esc(a.id) + '" type="button">Delete</button>' +
+            '</div></div>';
+        }).join("");
+      }
+
+      /* ---------------- Invoices ---------------- */
+      function invSelectHtml(a, field) {
+        var cur = a[field] || "not sent";
+        var opts = INV_STATUSES.map(function (s) {
+          return '<option value="' + s + '"' + (cur === s ? " selected" : "") + '>' + s + '</option>';
+        }).join("");
+        return '<select class="inv-select" data-inv-field="' + field + '" data-inv-id="' + esc(a.id) + '">' + opts + '</select>';
+      }
+      function renderInvoices() {
+        var list = $("invoicesList");
+        if (!assignments.length) {
+          list.innerHTML = '<div class="empty-state">No invoices yet — they appear here as soon as an assignment is created (one deposit invoice and one final invoice per assignment).</div>';
+          return;
+        }
+        list.innerHTML = assignments.map(function (a) {
+          var m = computeMoney(a);
+          function row(kind, amount, cardAmount, field) {
+            return '<div class="inv-row" style="padding:10px 0;border-top:1px solid var(--line)">' +
+              '<div class="grow"><strong>' + kind + ' invoice</strong><div style="color:var(--ink-3);font-size:13.5px">' +
+              esc(a.startDate ? prettyDate(a.startDate) : "") + (a.travelerName ? " · " + esc(a.travelerName) : "") + '</div></div>' +
+              '<div><div style="font-weight:700">' + money(amount) + ' <span style="color:var(--ink-3);font-weight:600;font-size:13px">ACH</span></div>' +
+              '<div style="color:var(--ink-2);font-size:13.5px">' + money(cardAmount) + ' by card</div></div>' +
+              invSelectHtml(a, field) + '</div>';
+          }
+          return '<div class="card"><div class="card-head"><span class="name" style="font-size:16px">' + esc(assignmentTitle(a)) + '</span></div>' +
+            row("Deposit", m.deposit, m.depositCard, "depositStatus") +
+            row("Final", m.finalAmt, m.finalCard, "finalStatus") +
+            '</div>';
+        }).join("");
+      }
+
+      /* ---------------- Modal + forms ---------------- */
+      function openModal(html) {
+        $("modalRoot").innerHTML = '<div class="overlay" id="overlay"><div class="modal">' + html + '</div></div>';
+        $("overlay").addEventListener("click", function (ev) { if (ev.target === $("overlay")) closeModal(); });
+      }
+      function closeModal() { $("modalRoot").innerHTML = ""; formAvail = []; }
+      function confirmModal(title, body, okLabel, onOk) {
+        openModal('<h3>' + esc(title) + '</h3><p class="hint">' + esc(body) + '</p>' +
+          '<div class="form-actions"><button class="btn" id="mCancel" type="button">Cancel</button>' +
+          '<button class="btn danger" id="mOk" type="button" style="border-color:rgba(248,113,113,.5)">' + esc(okLabel) + '</button></div>');
+        $("mCancel").addEventListener("click", closeModal);
+        $("mOk").addEventListener("click", function () { closeModal(); onOk(); });
+      }
+      function skillsCheckboxes(selected) {
+        var set = {}; (selected || []).forEach(function (s) { set[s] = true; });
+        return SKILLS.map(function (s) {
+          return '<label class="check"><input type="checkbox" data-skill="' + esc(s) + '"' + (set[s] ? " checked" : "") + ' /> <span>' + esc(s) + '</span></label>';
+        }).join("");
+      }
+      function statesCheckboxes(selected) {
+        var set = {}; (selected || []).forEach(function (s) { set[s] = true; });
+        return STATES.map(function (s) {
+          return '<label class="check"><input type="checkbox" data-state="' + s + '"' + (set[s] ? " checked" : "") + ' /> <span>' + s + '</span></label>';
+        }).join("");
+      }
+      function checkedValues(container, attr) {
+        var out = [];
+        container.querySelectorAll("[" + attr + "]").forEach(function (cb) { if (cb.checked) out.push(cb.getAttribute(attr)); });
+        return out;
+      }
+      function positionOptions(selected) {
+        return POSITIONS.map(function (p) {
+          return '<option value="' + esc(p) + '"' + (selected === p ? " selected" : "") + '>' + esc(p) + '</option>';
+        }).join("");
+      }
+
+      /* Availability chip editor (used in the traveler form) */
+      var formAvail = [];
+      function renderAvailChips() {
+        var box = $("availChips");
+        if (!box) return;
+        var sorted = formAvail.slice().sort();
+        box.innerHTML = sorted.length ? sorted.map(function (d) {
+          return '<span class="chip">' + esc(prettyShort(d)) + ' ' + esc(String(d).slice(0, 4)) +
+            '<button type="button" data-avail-del="' + esc(d) + '" aria-label="Remove date">×</button></span>';
+        }).join("") : '<span style="color:var(--ink-3);font-size:13.5px">No dates picked.</span>';
+        box.querySelectorAll("[data-avail-del]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            formAvail = formAvail.filter(function (d) { return d !== b.getAttribute("data-avail-del"); });
+            renderAvailChips();
+          });
+        });
+      }
+
+      /* ----- Traveler form ----- */
+      function travelerForm(t) {
+        var isNew = !t;
+        t = t || {};
+        formAvail = (t.availability || []).slice();
+        openModal(
+          '<h3>' + (isNew ? "Add traveler" : "Edit traveler") + '</h3>' +
+          '<p class="hint">' + (isNew ? "Manual entry — portal sign-ups are added automatically." : "Changes save straight to the roster record.") + '</p>' +
+          '<form id="mForm">' +
+          '<div class="grid2">' +
+          '<label class="field"><span>Full name <span class="req">*</span></span><input type="text" id="f_fullName" value="' + esc(t.fullName || "") + '" /></label>' +
+          '<label class="field"><span>Title / position <span class="req">*</span></span><select id="f_title"><option value="">Select…</option>' + positionOptions(t.title) + '</select></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>Email</span><input type="email" id="f_email" value="' + esc(t.email || "") + '" /></label>' +
+          '<label class="field"><span>Phone</span><input type="tel" id="f_phone" value="' + esc(t.phone || "") + '" /></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>Base city</span><input type="text" id="f_baseCity" value="' + esc(t.baseCity || "") + '" placeholder="City, State" /></label>' +
+          '<label class="field"><span>Years of experience</span><input type="number" id="f_years" min="0" max="60" step="1" value="' + (t.yearsExperience != null ? esc(t.yearsExperience) : "") + '" /></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>License number</span><input type="text" id="f_license" value="' + esc(t.licenseNumber || "") + '" /></label>' +
+          '<label class="field"><span>Desired rate (USD / day)</span><input type="number" id="f_rate" min="0" step="1" value="' + (t.desiredRate != null ? esc(t.desiredRate) : "") + '" /></label>' +
+          '</div>' +
+          '<label class="field"><span>Licenses &amp; certifications</span><input type="text" id="f_certs" value="' + esc(t.licensesCerts || "") + '" /></label>' +
+          '<div class="form-section">Skills</div><div class="checkgrid">' + skillsCheckboxes(t.skills) + '</div>' +
+          '<div class="form-section">States they will travel to</div><div class="checkgrid states">' + statesCheckboxes(t.states) + '</div>' +
+          '<div class="form-section">Availability</div>' +
+          '<div class="date-add"><label class="field"><span>Add a date</span><input type="date" id="f_availDate" /></label>' +
+          '<button class="btn small" id="btnAddDate" type="button">Add date</button></div>' +
+          '<div class="chips" id="availChips"></div>' +
+          '<div class="form-section">Non-circumvention</div><div class="grid2">' +
+          '<label class="field"><span>Signed by (typed name)</span><input type="text" id="f_signature" value="' + esc(t.signature || "") + '" /></label>' +
+          '<label class="field"><span>Date signed</span><input type="date" id="f_signatureDate" value="' + esc(t.signatureDate || "") + '" /></label>' +
+          '</div>' +
+          '<div id="mError" class="alert alert-error hidden"></div>' +
+          '<div class="form-actions"><button class="btn" id="mCancel" type="button">Cancel</button>' +
+          '<button class="btn primary" type="submit">' + (isNew ? "Add traveler" : "Save changes") + '</button></div>' +
+          '</form>'
+        );
+        renderAvailChips();
+        $("btnAddDate").addEventListener("click", function () {
+          var v = $("f_availDate").value;
+          if (v && formAvail.indexOf(v) < 0) { formAvail.push(v); renderAvailChips(); }
+        });
+        $("mCancel").addEventListener("click", closeModal);
+        $("mForm").addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var errBox = $("mError"); hideMsg(errBox);
+          var name = $("f_fullName").value.trim();
+          var title = $("f_title").value;
+          if (!name) { showMsg(errBox, "Full name is required.", "error"); return; }
+          if (!title) { showMsg(errBox, "Pick a title / position.", "error"); return; }
+          var data = {
+            fullName: name, title: title,
+            email: $("f_email").value.trim(), phone: $("f_phone").value.trim(),
+            baseCity: $("f_baseCity").value.trim(),
+            yearsExperience: $("f_years").value === "" ? null : Number($("f_years").value),
+            licenseNumber: $("f_license").value.trim(),
+            licensesCerts: $("f_certs").value.trim(),
+            desiredRate: $("f_rate").value === "" ? null : Number($("f_rate").value),
+            skills: checkedValues($("mForm"), "data-skill"),
+            states: checkedValues($("mForm"), "data-state"),
+            availability: formAvail.slice().sort(),
+            signature: $("f_signature").value.trim(),
+            signatureDate: $("f_signatureDate").value,
+            updatedAt: ts()
+          };
+          var p = isNew
+            ? db.collection("travelers").add(Object.assign({ source: "manual", createdAt: ts() }, data))
+            : db.collection("travelers").doc(t.id).set(data, { merge: true });
+          p.then(function () { closeModal(); toast(isNew ? "Traveler added." : "Traveler saved."); })
+            .catch(function (err) { showMsg(errBox, "Save failed (" + (err && err.code ? err.code : "error") + ").", "error"); });
+        });
+      }
+
+      /* ----- Lab form ----- */
+      function labForm(l) {
+        var isNew = !l;
+        l = l || {};
+        openModal(
+          '<h3>' + (isNew ? "Add lab" : "Edit lab") + '</h3><form id="mForm">' +
+          '<label class="field"><span>Lab / clinic name <span class="req">*</span></span><input type="text" id="f_name" value="' + esc(l.name || "") + '" /></label>' +
+          '<div class="grid2">' +
+          '<label class="field"><span>Contact name</span><input type="text" id="f_contact" value="' + esc(l.contactName || "") + '" /></label>' +
+          '<label class="field"><span>Phone</span><input type="tel" id="f_phone" value="' + esc(l.phone || "") + '" /></label>' +
+          '</div>' +
+          '<label class="field"><span>Billing email</span><input type="email" id="f_email" value="' + esc(l.email || "") + '" /></label>' +
+          '<div class="grid2">' +
+          '<label class="field"><span>City</span><input type="text" id="f_city" value="' + esc(l.city || "") + '" /></label>' +
+          '<label class="field"><span>State <span class="req">*</span></span><select id="f_state"><option value="">Select…</option>' +
+          STATES.map(function (s) { return '<option value="' + s + '"' + (l.state === s ? " selected" : "") + '>' + s + '</option>'; }).join("") + '</select></label>' +
+          '</div>' +
+          '<label class="field"><span>Notes</span><textarea id="f_notes">' + esc(l.notes || "") + '</textarea></label>' +
+          '<div id="mError" class="alert alert-error hidden"></div>' +
+          '<div class="form-actions"><button class="btn" id="mCancel" type="button">Cancel</button>' +
+          '<button class="btn primary" type="submit">' + (isNew ? "Add lab" : "Save changes") + '</button></div></form>'
+        );
+        $("mCancel").addEventListener("click", closeModal);
+        $("mForm").addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var errBox = $("mError"); hideMsg(errBox);
+          var name = $("f_name").value.trim();
+          if (!name) { showMsg(errBox, "Lab name is required.", "error"); return; }
+          var state = $("f_state").value;
+          if (!state) { showMsg(errBox, "Pick the lab's state — matching uses it.", "error"); return; }
+          var data = {
+            name: name, contactName: $("f_contact").value.trim(), phone: $("f_phone").value.trim(),
+            email: $("f_email").value.trim(), city: $("f_city").value.trim(), state: state,
+            notes: $("f_notes").value.trim(), updatedAt: ts()
+          };
+          var p = isNew
+            ? db.collection("labs").add(Object.assign({ createdAt: ts() }, data))
+            : db.collection("labs").doc(l.id).set(data, { merge: true });
+          p.then(function () { closeModal(); toast(isNew ? "Lab added." : "Lab saved."); })
+            .catch(function (err) { showMsg(errBox, "Save failed (" + (err && err.code ? err.code : "error") + ").", "error"); });
+        });
+      }
+
+      /* ----- Request form ----- */
+      function requestForm(r, presetLabId) {
+        var isNew = !r;
+        r = r || {};
+        if (!labs.length) { toast("Add a lab first — requests belong to a lab."); goTab("labs"); return; }
+        var labOpts = labs.map(function (l) {
+          var sel = (r.labId === l.id || (!r.labId && presetLabId === l.id)) ? " selected" : "";
+          return '<option value="' + esc(l.id) + '"' + sel + '>' + esc(l.name) + (l.state ? " (" + esc(l.state) + ")" : "") + '</option>';
+        }).join("");
+        openModal(
+          '<h3>' + (isNew ? "New coverage request" : "Edit request") + '</h3><form id="mForm">' +
+          '<div class="grid2">' +
+          '<label class="field"><span>Lab <span class="req">*</span></span><select id="f_lab">' + labOpts + '</select></label>' +
+          '<label class="field"><span>Position needed <span class="req">*</span></span><select id="f_position">' + positionOptions(r.position || "Senior Embryologist") + '</select></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>Coverage start <span class="req">*</span></span><input type="date" id="f_start" value="' + esc(r.startDate || todayISO()) + '" /></label>' +
+          '<label class="field"><span>Coverage end <span class="req">*</span></span><input type="date" id="f_end" value="' + esc(r.endDate || todayISO()) + '" /></label>' +
+          '</div>' +
+          '<div class="form-section">Skills needed</div><div class="checkgrid">' + skillsCheckboxes(r.skillsNeeded) + '</div>' +
+          '<label class="field"><span>Notes</span><textarea id="f_notes">' + esc(r.notes || "") + '</textarea></label>' +
+          '<div id="mError" class="alert alert-error hidden"></div>' +
+          '<div class="form-actions"><button class="btn" id="mCancel" type="button">Cancel</button>' +
+          '<button class="btn primary" type="submit">' + (isNew ? "Create request" : "Save changes") + '</button></div></form>'
+        );
+        $("mCancel").addEventListener("click", closeModal);
+        $("mForm").addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var errBox = $("mError"); hideMsg(errBox);
+          var labId = $("f_lab").value;
+          var lab = labsById()[labId];
+          var start = $("f_start").value, end = $("f_end").value;
+          if (!lab) { showMsg(errBox, "Pick a lab.", "error"); return; }
+          if (!start || !end) { showMsg(errBox, "Pick the coverage dates.", "error"); return; }
+          if (end < start) { showMsg(errBox, "End date is before the start date.", "error"); return; }
+          var data = {
+            labId: labId, labName: lab.name, position: $("f_position").value,
+            startDate: start, endDate: end,
+            skillsNeeded: checkedValues($("mForm"), "data-skill"),
+            notes: $("f_notes").value.trim(), updatedAt: ts()
+          };
+          var p = isNew
+            ? db.collection("requests").add(Object.assign({ status: "new", createdAt: ts() }, data))
+            : db.collection("requests").doc(r.id).set(data, { merge: true });
+          p.then(function () { closeModal(); toast(isNew ? "Request created." : "Request saved."); goTab("requests"); })
+            .catch(function (err) { showMsg(errBox, "Save failed (" + (err && err.code ? err.code : "error") + ").", "error"); });
+        });
+      }
+
+      /* ----- Assignment form ----- */
+      function assignmentForm(a, preset) {
+        var isNew = !a;
+        a = a || {};
+        preset = preset || {};
+        var reqId = a.requestId || preset.requestId || "";
+        var travId = a.travelerId || preset.travelerId || "";
+        var req = requestsById()[reqId];
+        var trav = travelersById()[travId];
+        var startDate = a.startDate || (req ? req.startDate : todayISO());
+        var endDate = a.endDate || (req ? req.endDate : todayISO());
+        var daysDefault = a.days != null ? a.days : Math.max(1, dateRange(startDate, endDate).length);
+        var rateDefault = a.dayRate != null ? a.dayRate : (trav && trav.desiredRate != null ? trav.desiredRate : "");
+        var pctDefault = a.commissionPct != null ? a.commissionPct : (daysDefault > 1 ? 7 : 10);
+        var reqOpts = '<option value="">— none —</option>' + requests.map(function (r) {
+          return '<option value="' + esc(r.id) + '"' + (reqId === r.id ? " selected" : "") + '>' +
+            esc(r.labName || "") + " · " + esc(r.position || "") + " · " + esc(r.startDate || "") + '</option>';
+        }).join("");
+        var travOpts = '<option value="">Select traveler…</option>' + travelers.map(function (t) {
+          return '<option value="' + esc(t.id) + '"' + (travId === t.id ? " selected" : "") + '>' + esc(t.fullName || "(no name)") + " — " + esc(t.title || "") + '</option>';
+        }).join("");
+        openModal(
+          '<h3>' + (isNew ? "New assignment" : "Edit assignment") + '</h3>' +
+          '<p class="hint">Deposit = 50% of (rate × days) + commission, due up front. Final = remaining 50% + travel at exact cost. Card totals add 2.9%.</p>' +
+          '<form id="mForm">' +
+          '<div class="grid2">' +
+          '<label class="field"><span>Request</span><select id="f_request">' + reqOpts + '</select></label>' +
+          '<label class="field"><span>Traveler <span class="req">*</span></span><select id="f_traveler">' + travOpts + '</select></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>Start date <span class="req">*</span></span><input type="date" id="f_start" value="' + esc(startDate) + '" /></label>' +
+          '<label class="field"><span>End date <span class="req">*</span></span><input type="date" id="f_end" value="' + esc(endDate) + '" /></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>Day rate (USD) <span class="req">*</span></span><input type="number" id="f_rate" min="0" step="0.01" value="' + esc(rateDefault) + '" /></label>' +
+          '<label class="field"><span>Number of days <span class="req">*</span></span><input type="number" id="f_days" min="1" step="1" value="' + esc(daysDefault) + '" /></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>Commission</span><select id="f_pct">' +
+          '<option value="10"' + (Number(pctDefault) === 10 ? " selected" : "") + '>10% — standard</option>' +
+          '<option value="7"' + (Number(pctDefault) === 7 ? " selected" : "") + '>7% — multi-day</option></select></label>' +
+          '<label class="field"><span>Travel cost (USD, exact)</span><input type="number" id="f_travel" min="0" step="0.01" value="' + (a.travelCost != null ? esc(a.travelCost) : "0") + '" /></label>' +
+          '</div>' +
+          '<div class="money-grid" id="moneyPreview"></div>' +
+          '<label class="field" style="margin-top:12px"><span>Notes</span><textarea id="f_notes">' + esc(a.notes || "") + '</textarea></label>' +
+          '<div id="mError" class="alert alert-error hidden"></div>' +
+          '<div class="form-actions"><button class="btn" id="mCancel" type="button">Cancel</button>' +
+          '<button class="btn primary" type="submit">' + (isNew ? "Create assignment" : "Save changes") + '</button></div></form>'
+        );
+        function preview() {
+          var m = computeMoney({
+            dayRate: Number($("f_rate").value) || 0,
+            days: Number($("f_days").value) || 0,
+            commissionPct: Number($("f_pct").value) || 0,
+            travelCost: Number($("f_travel").value) || 0
+          });
+          $("moneyPreview").innerHTML =
+            '<div class="money-cell"><div class="l">Deposit</div><div class="v">' + money(m.deposit) + '</div><div class="s">card ' + money(m.depositCard) + '</div></div>' +
+            '<div class="money-cell"><div class="l">Final</div><div class="v">' + money(m.finalAmt) + '</div><div class="s">card ' + money(m.finalCard) + '</div></div>' +
+            '<div class="money-cell"><div class="l">Total ACH / card</div><div class="v">' + money(m.total) + '</div><div class="s">card ' + money(m.totalCard) + '</div></div>';
+        }
+        ["f_rate", "f_days", "f_pct", "f_travel"].forEach(function (id) {
+          $(id).addEventListener("input", preview); $(id).addEventListener("change", preview);
+        });
+        $("f_start").addEventListener("change", function () {
+          var n = dateRange($("f_start").value, $("f_end").value).length;
+          if (n > 0) $("f_days").value = n;
+          preview();
+        });
+        $("f_end").addEventListener("change", function () {
+          var n = dateRange($("f_start").value, $("f_end").value).length;
+          if (n > 0) $("f_days").value = n;
+          preview();
+        });
+        preview();
+        $("mCancel").addEventListener("click", closeModal);
+        $("mForm").addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var errBox = $("mError"); hideMsg(errBox);
+          var tId = $("f_traveler").value;
+          var t = travelersById()[tId];
+          if (!t) { showMsg(errBox, "Pick a traveler.", "error"); return; }
+          var rId = $("f_request").value;
+          var rq = requestsById()[rId];
+          var lab = rq ? labsById()[rq.labId] : null;
+          var rate = Number($("f_rate").value), days = Number($("f_days").value);
+          if (!(rate > 0)) { showMsg(errBox, "Enter the day rate for this assignment.", "error"); return; }
+          if (!(days >= 1)) { showMsg(errBox, "Days must be at least 1.", "error"); return; }
+          var start = $("f_start").value, end = $("f_end").value;
+          if (!start || !end || end < start) { showMsg(errBox, "Check the dates.", "error"); return; }
+          var data = {
+            requestId: rId || "", travelerId: tId,
+            travelerName: t.fullName || "", position: rq ? rq.position : (t.title || ""),
+            labId: rq ? rq.labId : "", labName: rq ? (rq.labName || (lab ? lab.name : "")) : "",
+            startDate: start, endDate: end,
+            dayRate: rate, days: days,
+            commissionPct: Number($("f_pct").value),
+            travelCost: Number($("f_travel").value) || 0,
+            notes: $("f_notes").value.trim(), updatedAt: ts()
+          };
+          var saveChain;
+          if (isNew) {
+            data.depositStatus = "not sent"; data.finalStatus = "not sent"; data.createdAt = ts();
+            saveChain = db.collection("assignments").add(data).then(function (ref) { return ref.id; });
+          } else {
+            saveChain = db.collection("assignments").doc(a.id).set(data, { merge: true }).then(function () { return a.id; });
+          }
+          saveChain.then(function (assignmentId) {
+            var jobs = [];
+            if (rq && rq.status !== "done") {
+              jobs.push(db.collection("requests").doc(rq.id).set({ status: "assigned", updatedAt: ts() }, { merge: true }));
+            }
+            // Traveler-visible placement for portal accounts — no money fields, ever.
+            if (t.username || t.authEmail) {
+              var mirror = {
+                travelerId: tId, assignmentId: assignmentId,
+                labName: data.labName || "EmbryoOnCall placement",
+                city: lab ? (lab.city || "") : "", state: lab ? (lab.state || "") : "",
+                startDate: start, endDate: end, role: data.position, status: "Assigned",
+                notes: "", updatedAt: ts()
+              };
+              if (isNew) {
+                mirror.createdAt = ts();
+                jobs.push(db.collection("traveler_assignments").add(mirror).then(function (ref) {
+                  return db.collection("assignments").doc(assignmentId).set({ portalMirrorId: ref.id }, { merge: true });
+                }));
+              }
+              else if (a.portalMirrorId) { jobs.push(db.collection("traveler_assignments").doc(a.portalMirrorId).set(mirror, { merge: true })); }
+            }
+            return Promise.all(jobs);
+          }).then(function () {
+            closeModal(); toast(isNew ? "Assignment created." : "Assignment saved."); goTab("assignments");
+          }).catch(function (err) {
+            showMsg(errBox, "Save failed (" + (err && err.code ? err.code : "error") + ").", "error");
+          });
+        });
+      }
+
+      /* ---------------- Actions (delegated) ---------------- */
+      document.addEventListener("click", function (ev) {
+        var el = ev.target.closest("[data-act]");
+        if (!el) return;
+        var act = el.getAttribute("data-act");
+        var id = el.getAttribute("data-id");
+        if (act === "edit-traveler") travelerForm(travelersById()[id]);
+        else if (act === "del-traveler") {
+          var t = travelersById()[id];
+          confirmModal("Delete this traveler?", "“" + (t ? t.fullName : "") + "” will be removed from the roster. " +
+            ((t && (t.username || t.authEmail)) ? "Their portal login stays, but their roster profile is deleted." : ""),
+            "Delete", function () {
+              db.collection("travelers").doc(id).delete().then(function () { toast("Traveler deleted."); });
+            });
+        }
+        else if (act === "edit-lab") labForm(labsById()[id]);
+        else if (act === "del-lab") {
+          var l = labsById()[id];
+          confirmModal("Delete this lab?", "“" + (l ? l.name : "") + "” will be removed. Existing requests keep the lab name they were created with.", "Delete", function () {
+            db.collection("labs").doc(id).delete().then(function () { toast("Lab deleted."); });
+          });
+        }
+        else if (act === "new-request-for-lab") { goTab("requests"); requestForm(null, id); }
+        else if (act === "edit-request") requestForm(requestsById()[id]);
+        else if (act === "del-request") {
+          confirmModal("Delete this request?", "The coverage request will be removed. Assignments already made from it stay.", "Delete", function () {
+            if (matchRequestId === id) { matchRequestId = null; $("matchPanel").innerHTML = ""; }
+            db.collection("requests").doc(id).delete().then(function () { toast("Request deleted."); });
+          });
+        }
+        else if (act === "find-matches") { renderMatches(id); }
+        else if (act === "close-matches") { matchRequestId = null; $("matchPanel").innerHTML = ""; }
+        else if (act === "assign") {
+          assignmentForm(null, { requestId: el.getAttribute("data-req"), travelerId: el.getAttribute("data-trav") });
+        }
+        else if (act === "edit-assignment") {
+          var a = assignments.filter(function (x) { return x.id === id; })[0];
+          if (a) assignmentForm(a);
+        }
+        else if (act === "del-assignment") {
+          var a2 = assignments.filter(function (x) { return x.id === id; })[0];
+          confirmModal("Delete this assignment?", "“" + (a2 ? assignmentTitle(a2) : "") + "” and its invoice tracking will be removed.", "Delete", function () {
+            var jobs = [db.collection("assignments").doc(id).delete()];
+            if (a2 && a2.portalMirrorId) jobs.push(db.collection("traveler_assignments").doc(a2.portalMirrorId).delete());
+            if (a2 && a2.requestId) {
+              var rq = requestsById()[a2.requestId];
+              if (rq && rq.status === "assigned") jobs.push(db.collection("requests").doc(rq.id).set({ status: "matched", updatedAt: ts() }, { merge: true }));
+            }
+            Promise.all(jobs).then(function () { toast("Assignment deleted."); });
+          });
+        }
+        else if (act === "goto-invoices") goTab("invoices");
+      });
+
+      document.addEventListener("change", function (ev) {
+        var sel = ev.target;
+        if (sel.hasAttribute && sel.hasAttribute("data-req-status")) {
+          db.collection("requests").doc(sel.getAttribute("data-req-status"))
+            .set({ status: sel.value, updatedAt: ts() }, { merge: true })
+            .then(function () { toast("Request marked " + sel.value + "."); });
+        }
+        if (sel.hasAttribute && sel.hasAttribute("data-inv-field")) {
+          var upd = { updatedAt: ts() };
+          upd[sel.getAttribute("data-inv-field")] = sel.value;
+          db.collection("assignments").doc(sel.getAttribute("data-inv-id")).set(upd, { merge: true })
+            .then(function () { toast("Invoice marked " + sel.value + "."); });
+        }
+      });
+
+      $("btnAddTraveler").addEventListener("click", function () { travelerForm(null); });
+      $("btnAddLab").addEventListener("click", function () { labForm(null); });
+      $("btnAddRequest").addEventListener("click", function () { requestForm(null); });
+      $("btnAddAssignment").addEventListener("click", function () { assignmentForm(null); });
+
+      /* ---------------- Copy rules ---------------- */
+      function copyText(text, btn) {
+        function done() { var old = btn.textContent; btn.textContent = "Copied"; setTimeout(function () { btn.textContent = old; }, 1600); }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done).catch(function () { fallback(); });
+        } else fallback();
+        function fallback() {
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); done(); } catch (e) {}
+          ta.remove();
+        }
+      }
+      [["btnCopyRulesLock", FIRESTORE_RULES], ["btnCopyRulesSetup", FIRESTORE_RULES],
+       ["btnCopyStorageLock", STORAGE_RULES], ["btnCopyStorageSetup", STORAGE_RULES]].forEach(function (pair) {
+        var b = $(pair[0]);
+        if (b) b.addEventListener("click", function () { copyText(pair[1], b); });
+      });
+      $("rulesPreLock").textContent = FIRESTORE_RULES;
+      $("rulesPreSetup").textContent = FIRESTORE_RULES;
+      $("storagePreLock").textContent = STORAGE_RULES;
+      $("storagePreSetup").textContent = STORAGE_RULES;
+
+      /* ---------------- Boot ---------------- */
+      if (firebaseReady) {
+        auth.onAuthStateChanged(function (user) {
+          if (user && user.email === DESK_EMAIL) {
+            if (sessionUntil() && sessionUntil() < Date.now()) {
+              auth.signOut(); showLock("unlock", "Your 30-day session ended — enter your PIN to unlock."); return;
+            }
+            if (!sessionUntil()) startSession();
+            enterDesk();
+          } else if (user) {
+            // Signed in as someone else (e.g. a traveler) — not the desk.
+            auth.signOut();
+            checkLockState();
+          } else {
+            if (!deskEntered) checkLockState();
+          }
+        });
+      } else {
+        checkLockState();
+      }
+    </script>
+  </body>
+</html>
