@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <link rel="icon" href="data:," />
+    <link rel="icon" href="favicon.png" />
     <title>EmbryoOnCall Desk</title>
     <style>
       :root {
@@ -368,7 +368,7 @@
             <div class="card-head"><span class="name">How the PIN lock works</span></div>
             <dl class="fields">
               <dt>PIN storage</dt><dd>Only a salted hash (PBKDF2-SHA256) is kept — the PIN itself is never stored or shown.</dd>
-              <dt>Enforcement</dt><dd>Your PIN derives the password of the desk's Firebase Auth account (<span id="deskEmailEcho"></span>). No sign-in, no data: Firestore rules limit the roster, labs, requests, assignments and invoices to that account.</dd>
+              <dt>Enforcement</dt><dd>Your PIN derives the password of the desk's Firebase Auth account (<span id="deskEmailEcho">desk@embryooncall.com</span>). No sign-in, no data: Firestore rules limit the roster, labs, requests, assignments and invoices to that account.</dd>
               <dt>Session</dt><dd>Unlocking signs you in for 30 days on this device. “Lock desk” signs you out immediately.</dd>
               <dt>Data</dt><dd>Everything lives in the same Firebase project as the traveler portal (embryooncall-travelers), so portal sign-ups land in this roster on their own.</dd>
             </dl>
