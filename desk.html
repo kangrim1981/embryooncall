@@ -283,15 +283,6 @@
 
         <div id="lockError" class="alert alert-error hidden"></div>
 
-        <details class="setup-details" id="lockSetupDetails">
-          <summary>First-time setup: turn on the lock in Firebase (one-time)</summary>
-          <p>The PIN only protects the data once these Firestore rules are in place. In the Firebase console for <strong>embryooncall-travelers</strong>: Firestore Database → Rules → paste the rules below → Publish. They keep the traveler portal working exactly as now, and limit the desk data (labs, requests, assignments, invoices) and the full roster to the desk sign-in.</p>
-          <button class="btn small" type="button" id="btnCopyRulesLock">Copy Firestore rules</button>
-          <pre class="rules" id="rulesPreLock"></pre>
-          <p>Resumes also need a Storage rule so only you (and the traveler who uploaded it) can open them: Storage → Rules → paste:</p>
-          <button class="btn small" type="button" id="btnCopyStorageLock">Copy Storage rules</button>
-          <pre class="rules" id="storagePreLock"></pre>
-        </details>
       </div>
     </div>
 
@@ -647,7 +638,7 @@
         if (!firebaseReady) {
           $("lockLoading").classList.add("hidden");
           showMsg($("lockError"), "Couldn't load the sign-in service. Check your connection and reload the page.", "error");
-          $("lockSetupDetails").open = true;
+          
           return;
         }
         var user = auth.currentUser;
@@ -664,7 +655,7 @@
               // Rules not published yet: we can't tell whether a PIN exists.
               // Show the unlock form and open the setup steps.
               showLock("unlock");
-              $("lockSetupDetails").open = true;
+              
               showMsg($("lockError"), "The desk can't read its lock settings yet — the Firestore rules in the setup section below need to be published once (Firebase console → Firestore Database → Rules). If this is your first open and the rules are already in, use “Create PIN” after publishing.", "warn");
               $("createPinForm").classList.remove("hidden");
             } else {
@@ -705,7 +696,7 @@
               showLock("unlock");
             } else if (err && err.code === "permission-denied") {
               showMsg(errBox, "Your account was created but saving the lock settings was denied — publish the Firestore rules from the setup section below, then unlock with the PIN you just chose.", "error");
-              $("lockSetupDetails").open = true;
+              
             } else {
               showMsg(errBox, "Couldn't create the PIN (" + (err && err.code ? err.code : "error") + "). Try again.", "error");
             }
@@ -739,7 +730,7 @@
               showMsg(errBox, "That PIN doesn't match. Try again.", "error");
             } else if (err && err.code === "permission-denied") {
               showMsg(errBox, "The desk lock settings are blocked — publish the Firestore rules from the setup section below first.", "error");
-              $("lockSetupDetails").open = true;
+              
             } else {
               showMsg(errBox, "Unlock failed (" + (err && err.code ? err.code : "error") + "). Check your connection and try again.", "error");
             }
@@ -1590,9 +1581,9 @@
         var b = $(pair[0]);
         if (b) b.addEventListener("click", function () { copyText(pair[1], b); });
       });
-      $("rulesPreLock").textContent = FIRESTORE_RULES;
+      
       $("rulesPreSetup").textContent = FIRESTORE_RULES;
-      $("storagePreLock").textContent = STORAGE_RULES;
+      
       $("storagePreSetup").textContent = STORAGE_RULES;
 
       /* ---------------- Boot ---------------- */
