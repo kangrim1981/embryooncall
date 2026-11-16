@@ -316,24 +316,6 @@
       // before that write lands — so the profile load must wait for it.
       var signUpPending = false;
 
-      var SKILLS = [
-        "oocyte retrieval",
-        "sperm preparation for insemination",
-        "in-vitro fertilization (IVF)",
-        "fertilization check",
-        "embryo evaluation",
-        "selection of embryos for transfer and vitrification",
-        "embryo vitrification",
-        "embryo thawing",
-        "embryo transfer",
-        "surgical sperm retrieval and processing",
-        "cell to tube transfer of embryo biopsy material",
-        "micromanipulation",
-        "ICSI",
-        "assisted hatching",
-        "embryo biopsy"
-      ];
-
       var STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"];
 
       function $(id) { return document.getElementById(id); }
@@ -357,9 +339,6 @@
 
       /* ---------- Profile form markup (shared by sign-up and edit) ---------- */
       function profileFieldsHTML(prefix) {
-        var skills = SKILLS.map(function (s, i) {
-          return '<label class="check"><input type="checkbox" data-skill="' + esc(s) + '" /> <span>' + esc(s) + "</span></label>";
-        }).join("");
         var states = STATES.map(function (s) {
           return '<label class="check"><input type="checkbox" data-state="' + s + '" /> <span>' + s + "</span></label>";
         }).join("");
@@ -384,8 +363,7 @@
         '<label class="field"><span>Licenses &amp; certifications</span><textarea data-f="licensesCerts" placeholder="e.g. ABB TS (ELD), state licenses, certifications"></textarea></label>' +
 
         '<h3>Skills</h3>' +
-        '<p class="small" style="margin:0 0 10px">Check every procedure you are trained and competent to perform.</p>' +
-        '<div class="checkgrid">' + skills + '</div>' +
+        '<label class="field"><span>Your skill set <span class="req">*</span></span><textarea data-f="skillsText" rows="4" placeholder="Write your own skill set, separated by commas — e.g. ICSI, embryo biopsy, embryo vitrification, oocyte retrieval"></textarea></label>' +
 
         '<h3>Availability</h3>' +
         '<p class="small" style="margin:0 0 10px">Tap the days you are available to travel for an assignment. Tap again to remove a day.</p>' +
@@ -483,8 +461,7 @@
           var el = container.querySelector('[data-f="' + name + '"]');
           return el ? el.value.trim() : "";
         }
-        var skills = [];
-        container.querySelectorAll("[data-skill]").forEach(function (cb) { if (cb.checked) skills.push(cb.getAttribute("data-skill")); });
+        var skills = val("skillsText").split(/[,\n]+/).map(function (s) { return s.trim(); }).filter(function (s) { return s; });
         var states = [];
         container.querySelectorAll("[data-state]").forEach(function (cb) { if (cb.checked) states.push(cb.getAttribute("data-state")); });
         var fileInput = container.querySelector('[data-f="resumeFile"]');
@@ -517,8 +494,7 @@
         set("licenseNumber", data.licenseNumber); set("licensesCerts", data.licensesCerts);
         set("desiredRate", data.desiredRate);
         set("signature", data.signature); set("signatureDate", data.signatureDate);
-        var skillSet = {}; (data.skills || []).forEach(function (s) { skillSet[s] = true; });
-        container.querySelectorAll("[data-skill]").forEach(function (cb) { cb.checked = !!skillSet[cb.getAttribute("data-skill")]; });
+        set("skillsText", (Array.isArray(data.skills) ? data.skills : (data.skills ? [data.skills] : [])).join(", "));
         var stateSet = {}; (data.states || []).forEach(function (s) { stateSet[s] = true; });
         container.querySelectorAll("[data-state]").forEach(function (cb) { cb.checked = !!stateSet[cb.getAttribute("data-state")]; });
         var note = container.querySelector("[data-resume-note]");
@@ -533,7 +509,7 @@
         if (!p.baseCity) return "Please enter your base city.";
         if (p.yearsExperience == null || isNaN(p.yearsExperience) || p.yearsExperience < 0) return "Please enter your years of experience.";
         if (p.desiredRate == null || isNaN(p.desiredRate) || p.desiredRate <= 0) return "Please enter your desired rate (USD per day).";
-        if (!p.skills.length) return "Please check at least one skill.";
+        if (!p.skills.length) return "Please write your skill set.";
         if (!p.signature) return "Please type your full name to sign the non-circumvention agreement.";
         if (!p.signatureDate) return "Please enter the date you signed the agreement.";
         return null;

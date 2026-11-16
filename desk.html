@@ -979,8 +979,8 @@
       function matchCheck(t, r, lab) {
         var reasons = [];
         var tSkills = {};
-        (t.skills || []).forEach(function (s) { tSkills[s] = true; });
-        var missingSkills = (r.skillsNeeded || []).filter(function (s) { return !tSkills[s]; });
+        (t.skills || []).forEach(function (s) { tSkills[String(s).toLowerCase().trim()] = true; });
+        var missingSkills = (r.skillsNeeded || []).filter(function (s) { return !tSkills[String(s).toLowerCase().trim()]; });
         if (missingSkills.length) reasons.push("missing skills: " + missingSkills.join(", "));
         if (lab && lab.state) {
           if ((t.states || []).indexOf(lab.state) < 0) reasons.push("doesn't travel to " + lab.state);
@@ -1220,7 +1220,7 @@
           '<label class="field"><span>Desired rate (USD / day)</span><input type="number" id="f_rate" min="0" step="1" value="' + (t.desiredRate != null ? esc(t.desiredRate) : "") + '" /></label>' +
           '</div>' +
           '<label class="field"><span>Licenses &amp; certifications</span><input type="text" id="f_certs" value="' + esc(t.licensesCerts || "") + '" /></label>' +
-          '<div class="form-section">Skills</div><div class="checkgrid">' + skillsCheckboxes(t.skills) + '</div>' +
+          '<label class="field"><span>Skill set</span><textarea id="f_skills" rows="4" placeholder="List skills, separated by commas — e.g. ICSI, embryo biopsy, embryo vitrification">' + esc((t.skills || []).join(", ")) + '</textarea></label>' +
           '<div class="form-section">States they will travel to</div><div class="checkgrid states">' + statesCheckboxes(t.states) + '</div>' +
           '<div class="form-section">Availability</div>' +
           '<div class="date-add"><label class="field"><span>Add a date</span><input type="date" id="f_availDate" /></label>' +
@@ -1256,7 +1256,7 @@
             licenseNumber: $("f_license").value.trim(),
             licensesCerts: $("f_certs").value.trim(),
             desiredRate: $("f_rate").value === "" ? null : Number($("f_rate").value),
-            skills: checkedValues($("mForm"), "data-skill"),
+            skills: $("f_skills").value.split(/[,\n]+/).map(function (s) { return s.trim(); }).filter(function (s) { return s; }),
             states: checkedValues($("mForm"), "data-state"),
             availability: formAvail.slice().sort(),
             signature: $("f_signature").value.trim(),
