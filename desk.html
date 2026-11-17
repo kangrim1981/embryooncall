@@ -1199,6 +1199,40 @@
         });
       }
 
+      /* Queue a text to the traveler when a new assignment is created.
+         Posts to FormSubmit (same pipe as invoices); the traveler-text
+         drain reads the mailbox and sends the SMS from Ken's phone. */
+      function queueTravelerText(assignmentId, t, data) {
+        if (!t.phone) return;
+        var first = (t.fullName || "").split(" ")[0] || "there";
+        var msg = "EmbryoOnCall: Hi " + first + ", you've been matched to " + (data.labName || "a lab") +
+          " (" + (data.position || "coverage") + "), " + (data.startDate || "") + " to " + (data.endDate || "") +
+          ". Please accept or decline in your portal: embryooncall.com/travelers.html";
+        var payload = {
+          Form: "Send Traveler Text",
+          "Assignment ID": assignmentId || "",
+          "Request ID": data.requestId || "",
+          "Traveler": t.fullName || "",
+          "Phone": t.phone || "",
+          "Lab": data.labName || "",
+          "Position": data.position || "",
+          "Start date": data.startDate || "",
+          "End date": data.endDate || "",
+          "Message": msg,
+          _subject: "Send Traveler Text — " + (t.fullName || "") + " / " + (data.labName || ""),
+          _template: "table",
+          _captcha: "false"
+        };
+        fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        }).catch(function (err) {
+          console.warn("Traveler text queue failed", err);
+          toast("Assignment saved, but the traveler text didn't queue — check your connection.");
+        });
+      }
+
       /* ---------------- Modal + forms ---------------- */
       function openModal(html) {
         $("modalRoot").innerHTML = '<div class="overlay" id="overlay"><div class="modal">' + html + '</div></div>';
@@ -1554,6 +1588,8 @@
               }
               else if (a.portalMirrorId) { jobs.push(db.collection("traveler_assignments").doc(a.portalMirrorId).set(mirror, { merge: true })); }
             }
+            // New match: text the traveler so they can accept or decline.
+            if (isNew && t.phone) { queueTravelerText(assignmentId, t, data); }
             return Promise.all(jobs);
           }).then(function () {
             closeModal(); toast(isNew ? "Assignment created." : "Assignment saved."); goTab("assignments");
