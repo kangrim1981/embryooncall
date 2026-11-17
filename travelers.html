@@ -180,6 +180,8 @@
       .placement { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; background: var(--surface-2); }
       .placement .p-title { font-weight: 700; margin-bottom: 3px; }
       .placement .p-meta { color: var(--muted); font-size: .92rem; }
+      .p-actions { margin-top: 10px; display: flex; gap: 8px; }
+      .p-actions .btn { flex: 1; padding: 9px 12px; min-height: 2.5rem; }
       .empty-state { color: var(--muted); padding: 18px; text-align: center; border: 1px dashed var(--line); border-radius: 10px; }
 
       .roster-item { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; background: var(--surface-2); }
@@ -690,6 +692,7 @@
               showView("traveler");
               $("travelerHello").textContent = "Signed in as " + username + " — welcome, " + saved.doc.fullName + "."; $("signUpSuccessPay").classList.remove("hidden");
               fillProfile($("profileForm"), saved.doc);
+              portalTravelerName = saved.doc.fullName || "";
               edCal.setDates(saved.doc.availability || []);
               loadAssignments(saved.uid);
             }
@@ -777,6 +780,7 @@
           .then(function (snap) {
             if (snap.exists) {
               var d = snap.data();
+              portalTravelerName = d.fullName || "";
               $("travelerHello").textContent = "Signed in as " + (d.username || "") + " — welcome" + (d.fullName ? ", " + d.fullName : "") + ".";
               fillProfile($("profileForm"), d);
               edCal.setDates(d.availability || []);
@@ -791,7 +795,17 @@
         loadAssignments(user.uid);
       }
 
+      /* Accept / Decline on a placement.
+         Firestore rules let only the desk write traveler_assignments, so
+         the traveler's answer goes out through the same FormSubmit pipe
+         as texts/emails/invoices; the traveler-response drain tells Ken.
+         The answer is remembered locally so the buttons don't come back. */
+      var portalTravelerName = "";
+      var assignmentById = {};
+      var lastAssignmentUid = null;
+
       function loadAssignments(uid) {
+        lastAssignmentUid = uid;
         var list = $("assignmentsList");
         db.collection("traveler_assignments").where("travelerId", "==", uid).get()
           .then(function (qs) {
@@ -799,6 +813,7 @@
             var items = [];
             qs.forEach(function (doc) { items.push(doc.data()); });
             items.sort(function (a, b) { return String(a.startDate || a.date || "") < String(b.startDate || b.date || "") ? -1 : 1; });
+            assignmentById = {};
             list.innerHTML = items.map(function (a) {
               var title = a.labName || a.facility || a.lab || a.title || "Assignment";
               var when = "";
@@ -807,13 +822,60 @@
               var where = [a.city, a.state].filter(Boolean).join(", ");
               var bits = [when, where, a.role || a.position || "", a.status || ""].filter(Boolean).map(esc).join(" · ");
               var notes = a.notes ? '<div class="p-meta">' + esc(a.notes) + "</div>" : "";
-              return '<div class="placement"><div class="p-title">' + esc(title) + '</div><div class="p-meta">' + bits + "</div>" + notes + "</div>";
+              var aid = a.assignmentId || "";
+              if (aid) assignmentById[aid] = a;
+              var action = "";
+              var resp = "";
+              try { resp = aid ? (localStorage.getItem("eoc_resp_" + aid) || "") : ""; } catch (e) {}
+              if ((a.status || "") === "Assigned" && aid && !resp) {
+                action = '<div class="p-actions"><button class="btn btn-primary" type="button" data-resp="Accepted" data-aid="' + esc(aid) + '">Accept</button>' +
+                  '<button class="btn btn-secondary" type="button" data-resp="Declined" data-aid="' + esc(aid) + '">Decline</button></div>';
+              } else if (resp) {
+                action = '<div class="p-meta">You ' + esc(resp.toLowerCase()) + ' — Ken has been notified.</div>';
+              }
+              return '<div class="placement"><div class="p-title">' + esc(title) + '</div><div class="p-meta">' + bits + "</div>" + notes + action + "</div>";
             }).join("");
           })
           .catch(function () {
             list.innerHTML = '<div class="empty-state">No assignments yet</div>';
           });
       }
+
+      document.addEventListener("click", function (ev) {
+        var btn = ev.target && ev.target.closest ? ev.target.closest("[data-resp]") : null;
+        if (!btn) return;
+        var resp = btn.getAttribute("data-resp");
+        var aid = btn.getAttribute("data-aid");
+        var a = assignmentById[aid];
+        if (!a) return;
+        btn.disabled = true;
+        var payload = {
+          Form: "Traveler Response",
+          "Assignment ID": aid,
+          "Request ID": a.requestId || "",
+          "Traveler": portalTravelerName || val("fullName") || "",
+          "Response": resp,
+          "Lab": a.labName || a.facility || a.lab || "",
+          "Position": a.role || a.position || "",
+          "Start date": a.startDate || a.date || "",
+          "End date": a.endDate || "",
+          _subject: "Traveler Response — " + resp + " — " + (portalTravelerName || val("fullName") || "") + " / " + (a.labName || a.facility || a.lab || ""),
+          _template: "table",
+          _captcha: "false"
+        };
+        fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(function (res) {
+          if (!res.ok) throw new Error("queue failed");
+          try { localStorage.setItem("eoc_resp_" + aid, resp); } catch (e) {}
+          if (lastAssignmentUid) loadAssignments(lastAssignmentUid);
+        }).catch(function () {
+          btn.disabled = false;
+          alert("Couldn't send your response — check your connection and try again.");
+        });
+      });
 
       /* ---------- Save profile (edit) ---------- */
       $("profileForm").addEventListener("submit", function (ev) {
