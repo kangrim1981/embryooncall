@@ -1158,6 +1158,10 @@
 
       /* ---------------- Send invoice ---------------- */
       /* One tap queues the invoice: it goes out through Stripe and Ken gets a text when it's sent. */
+      /* One tap = one send: in-flight guard so rapid or repeated Send taps
+         can't queue the same invoice twice (the in-memory assignment object
+         can be stale, so the Firestore reqField check alone isn't enough). */
+      var sendingInvoices = {};
       function sendInvoice(a, kind) {
         var m = computeMoney(a);
         var isDeposit = kind === "deposit";
@@ -1166,6 +1170,9 @@
         var reqField = isDeposit ? "depositSendRequestedAt" : "finalSendRequestedAt";
         if ((a[statusField] || "not sent") !== "not sent") { toast("That invoice is already marked " + a[statusField] + "."); return; }
         if (a[reqField]) { toast("Already sending — you'll get a text when it's out."); return; }
+        var sendKey = (a.id || "") + "|" + kind;
+        if (sendingInvoices[sendKey]) { toast("Already sending — you'll get a text when it's out."); return; }
+        sendingInvoices[sendKey] = true;
         if (!a.billingEmail) { toast("No billing email on this assignment — edit it and add one first."); return; }
         var due = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
         var payload = {
@@ -1197,10 +1204,12 @@
         }).then(function (res) {
           if (!res.ok) throw new Error("queue failed");
           var upd = { updatedAt: ts() }; upd[reqField] = ts();
+          a[reqField] = upd[reqField];
           return db.collection("assignments").doc(a.id).set(upd, { merge: true });
         }).then(function () {
           toast("Sending — you'll get a text when the invoice is out.");
         }).catch(function () {
+          delete sendingInvoices[sendKey];
           toast("Couldn't queue the invoice — check your connection and try again.");
         });
       }
@@ -1495,6 +1504,9 @@
       }
 
       /* ----- Assignment form ----- */
+      /* One tap = one assignment: in-flight guard so a double-tap on
+         "Create assignment" can't save the same assignment twice. */
+      var savingAssignment = false;
       function assignmentForm(a, preset) {
         var isNew = !a;
         a = a || {};
@@ -1577,6 +1589,7 @@
         $("mCancel").addEventListener("click", closeModal);
         $("mForm").addEventListener("submit", function (ev) {
           ev.preventDefault();
+          if (savingAssignment) { return; }
           var errBox = $("mError"); hideMsg(errBox);
           var tId = $("f_traveler").value;
           var t = travelersById()[tId];
@@ -1604,6 +1617,7 @@
             notes: $("f_notes").value.trim(), updatedAt: ts()
           };
           var saveChain;
+          savingAssignment = true;
           if (isNew) {
             data.depositStatus = "not sent"; data.finalStatus = "not sent"; data.createdAt = ts();
             saveChain = db.collection("assignments").add(data).then(function (ref) { return ref.id; });
@@ -1644,8 +1658,10 @@
             }
             return Promise.all(jobs);
           }).then(function () {
+            savingAssignment = false;
             closeModal(); toast(isNew ? "Assignment created." : "Assignment saved."); goTab("assignments");
           }).catch(function (err) {
+            savingAssignment = false;
             var msg = "Save failed (" + (err && err.code ? err.code : "error") + ").";
             showMsg(errBox, msg, "error"); toast(msg + " Tell Muse what it says.");
           });
