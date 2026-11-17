@@ -879,9 +879,12 @@
         var deposit = labor * 0.5 + commission;
         var finalAmt = labor * 0.5 + travel;
         var total = labor + commission + travel;
+        var depC = Math.round(deposit * 100), finC = Math.round(finalAmt * 100), totC = Math.round(total * 100);
         return {
           labor: labor, commission: commission, deposit: deposit, finalAmt: finalAmt, total: total,
-          depositCard: deposit * 1.029, finalCard: finalAmt * 1.029, totalCard: total * 1.029
+          depositCard: (depC + Math.round(depC * 29 / 1000)) / 100,
+          finalCard: (finC + Math.round(finC * 29 / 1000)) / 100,
+          totalCard: (totC + Math.round(totC * 29 / 1000)) / 100
         };
       }
       function renderStats() {
@@ -1151,7 +1154,8 @@
             var queued = !sent && !!a[reqField];
             var sendBtn = sent ? "" : queued
               ? '<button class="btn small" type="button" disabled>Sending…</button>'
-              : '<button class="btn small primary" data-act="send-invoice" data-id="' + esc(a.id) + '" data-kind="' + kind.toLowerCase() + '" type="button">Send</button>';
+              : '<button class="btn small primary" data-act="send-invoice" data-id="' + esc(a.id) + '" data-kind="' + kind.toLowerCase() + '" data-method="ach" type="button">Send (ACH)</button>' +
+                ' <button class="btn small" data-act="send-invoice" data-id="' + esc(a.id) + '" data-kind="' + kind.toLowerCase() + '" data-method="card" type="button">Send (Card)</button>';
             return '<div class="inv-row" style="padding:10px 0;border-top:1px solid var(--line)">' +
               '<div class="grow"><strong>' + kind + ' invoice</strong><div style="color:var(--ink-3);font-size:13.5px">' +
               esc(a.startDate ? prettyDate(a.startDate) : "") + (a.travelerName ? " · " + esc(a.travelerName) : "") + (kind === "Final" && a.endDate ? " · send " + esc(prettyDate(a.endDate)) + " — day traveler returns home" : kind === "Deposit" ? " · due within 24 hours of receipt" : "") + '</div></div>' +
@@ -1172,10 +1176,13 @@
          can't queue the same invoice twice (the in-memory assignment object
          can be stale, so the Firestore reqField check alone isn't enough). */
       var sendingInvoices = {};
-      function sendInvoice(a, kind) {
+      function sendInvoice(a, kind, method) {
         var m = computeMoney(a);
         var isDeposit = kind === "deposit";
-        var amount = isDeposit ? m.deposit : m.finalAmt;
+        var isCard = method === "card";
+        var base = isDeposit ? m.deposit : m.finalAmt;
+        var amount = isCard ? (isDeposit ? m.depositCard : m.finalCard) : base;
+        var fee = Math.round((amount - base) * 100) / 100;
         var statusField = isDeposit ? "depositStatus" : "finalStatus";
         var reqField = isDeposit ? "depositSendRequestedAt" : "finalSendRequestedAt";
         if ((a[statusField] || "not sent") !== "not sent") { toast("That invoice is already marked " + a[statusField] + "."); return; }
@@ -1202,6 +1209,8 @@
           "Commission (USD)": String(m.commission),
           "Travel cost (USD)": String(Number(a.travelCost) || 0),
           "Amount due (USD)": String(amount),
+          "Payment method": isCard ? "Card" : "ACH",
+          "Card fee (USD)": String(fee),
           "Due date": due,
           _subject: "Send Invoice — " + (isDeposit ? "Deposit" : "Final") + " — " + (a.labName || "") + " / " + (a.travelerName || ""),
           _template: "table",
@@ -1736,7 +1745,7 @@
         else if (act === "send-invoice") {
           var asg = null;
           assignments.forEach(function (x) { if (x.id === id) asg = x; });
-          if (asg) sendInvoice(asg, el.getAttribute("data-kind") || "deposit");
+          if (asg) sendInvoice(asg, el.getAttribute("data-kind") || "deposit", el.getAttribute("data-method") || "ach");
         }
         else if (act === "goto-invoices") goTab("invoices");
       });
