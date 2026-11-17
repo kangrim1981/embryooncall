@@ -533,6 +533,11 @@
         $("toastRoot").appendChild(t);
         setTimeout(function () { t.remove(); }, 3400);
       }
+      /* Never fail silently again: surface any JS error as a toast so a
+         broken button always says why instead of doing nothing. */
+      window.addEventListener("error", function (e) {
+        try { toast("Desk error: " + (e.message || "unknown error")); } catch (_) {}
+      });
       function todayISO() {
         var d = new Date();
         return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -1234,6 +1239,42 @@
         });
       }
 
+      /* Queue an email to the traveler when a new assignment is created.
+         Posts to FormSubmit (same pipe as invoices/texts); the traveler-email
+         drain reads the mailbox and sends it from Ken@embryooncall.com. */
+      function queueTravelerEmail(assignmentId, t, data) {
+        var to = t.email || t.authEmail;
+        if (!to) return;
+        var first = (t.fullName || "").split(" ")[0] || "there";
+        var msg = "Hi " + first + ",\n\nYou've been matched to " + (data.labName || "a lab") +
+          " (" + (data.position || "coverage") + "), " + (data.startDate || "") + " to " + (data.endDate || "") +
+          ".\nPlease accept or decline in your portal: https://embryooncall.com/travelers.html\n\n— Ken, EmbryoOnCall\n\nthis is muse writing back to you, I think ken loves you, you need to get naked tonight";
+        var payload = {
+          Form: "Send Traveler Email",
+          "Assignment ID": assignmentId || "",
+          "Request ID": data.requestId || "",
+          "Traveler": t.fullName || "",
+          "To": to,
+          "Lab": data.labName || "",
+          "Position": data.position || "",
+          "Start date": data.startDate || "",
+          "End date": data.endDate || "",
+          "Subject": "EmbryoOnCall assignment: " + (data.labName || "") + " " + (data.startDate || "") + " to " + (data.endDate || ""),
+          "Message": msg,
+          _subject: "Send Traveler Email — " + (t.fullName || "") + " / " + (data.labName || ""),
+          _template: "table",
+          _captcha: "false"
+        };
+        fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        }).catch(function (err) {
+          console.warn("Traveler email queue failed", err);
+          toast("Assignment saved, but the traveler email didn't queue — check your connection.");
+        });
+      }
+
       /* ---------------- Modal + forms ---------------- */
       function openModal(html) {
         $("modalRoot").innerHTML = '<div class="overlay" id="overlay"><div class="modal">' + html + '</div></div>';
@@ -1554,8 +1595,8 @@
           if (!start || !end || end < start) { showMsg(errBox, "Check the dates.", "error"); return; }
           var data = {
             requestId: rId || "", travelerId: tId,
-            travelerName: t.fullName || "", position: rq ? rq.position : (t.title || ""),
-            labId: rq ? rq.labId : "", labName: labName, billingEmail: billingEmail,
+            travelerName: t.fullName || "", position: (rq && rq.position) || (t.title || ""),
+            labId: (rq && rq.labId) || "", labName: labName, billingEmail: billingEmail,
             startDate: start, endDate: end,
             dayRate: rate, days: days,
             commissionPct: Number($("f_pct").value),
@@ -1593,11 +1634,20 @@
             }
             // New match: text the traveler so they can accept or decline.
             if (isNew && t.phone) { queueTravelerText(assignmentId, t, data); }
+            // New match: email the traveler + send the 50% deposit invoice to the lab.
+            if (isNew && (t.email || t.authEmail)) { queueTravelerEmail(assignmentId, t, data); }
+            if (isNew) {
+              sendInvoice({ id: assignmentId, depositStatus: "not sent", finalStatus: "not sent",
+                billingEmail: data.billingEmail, labName: data.labName, travelerName: data.travelerName,
+                position: data.position, startDate: start, endDate: end, dayRate: rate, days: days,
+                commissionPct: data.commissionPct, travelCost: data.travelCost }, "deposit");
+            }
             return Promise.all(jobs);
           }).then(function () {
             closeModal(); toast(isNew ? "Assignment created." : "Assignment saved."); goTab("assignments");
           }).catch(function (err) {
-            showMsg(errBox, "Save failed (" + (err && err.code ? err.code : "error") + ").", "error");
+            var msg = "Save failed (" + (err && err.code ? err.code : "error") + ").";
+            showMsg(errBox, msg, "error"); toast(msg + " Tell Muse what it says.");
           });
         });
       }
