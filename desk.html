@@ -466,7 +466,14 @@
         "    }",
         "    // Desk-only business data.",
         "    match /labs/{id} { allow read, write: if isDesk(); }",
-        "    match /requests/{id} { allow read, write: if isDesk(); }",
+        "    // Coverage requests: labs submit from the public site with no",
+        "    // sign-in, so anyone may CREATE a request; only the desk can",
+        "    // read, update or delete one.",
+        "    match /requests/{id} {",
+        "      allow read: if isDesk();",
+        "      allow create: if true;",
+        "      allow update, delete: if isDesk();",
+        "    }",
         "    match /assignments/{id} { allow read, write: if isDesk(); }",
         "    // Placements a traveler can see in the portal (no money fields).",
         "    match /traveler_assignments/{id} {",
@@ -998,7 +1005,7 @@
         list.innerHTML = requests.map(function (r) {
           var lab = lm[r.labId];
           var labName = r.labName || (lab ? lab.name : "(lab deleted)");
-          var where = lab ? [lab.city, lab.state].filter(Boolean).join(", ") : "";
+          var where = lab ? [lab.city, lab.state].filter(Boolean).join(", ") : (r.location || "");
           var dates = r.startDate ? prettyDate(r.startDate) + (r.endDate && r.endDate !== r.startDate ? " – " + prettyDate(r.endDate) : "") : "—";
           var statusOpts = REQ_STATUSES.map(function (s) {
             return '<option value="' + s + '"' + (r.status === s ? " selected" : "") + '>' + s + '</option>';
@@ -1010,6 +1017,8 @@
             '<dl class="fields">' +
             '<dt>Dates</dt><dd>' + esc(dates) + ' (' + requestDates(r).length + ' day' + (requestDates(r).length === 1 ? "" : "s") + ')</dd>' +
             '<dt>Skills needed</dt><dd>' + esc((r.skillsNeeded || []).join(", ") || "—") + '</dd>' +
+            (r.billingEmail ? '<dt>Billing email</dt><dd>' + esc(r.billingEmail) + '</dd>' : "") +
+            (r.contactName ? '<dt>Contact</dt><dd>' + esc(r.contactName) + (r.contactPhone ? " · " + esc(r.contactPhone) : "") + '</dd>' : "") +
             (r.notes ? '<dt>Notes</dt><dd>' + esc(r.notes) + '</dd>' : "") +
             '</dl>' +
             '<div class="card-actions">' +
@@ -1420,7 +1429,7 @@
         var trav = travelersById()[travId];
         var labForForm = req ? labsById()[req.labId] : null;
         var labNameDefault = a.labName || (req ? (req.labName || (labForForm ? labForForm.name : "")) : "");
-        var billingDefault = a.billingEmail || (labForForm ? labForForm.email || "" : "");
+        var billingDefault = a.billingEmail || (req ? (req.billingEmail || "") : "") || (labForForm ? labForForm.email || "" : "");
         var startDate = a.startDate || (req ? req.startDate : todayISO());
         var endDate = a.endDate || (req ? req.endDate : todayISO());
         var daysDefault = a.days != null ? a.days : Math.max(1, dateRange(startDate, endDate).length);

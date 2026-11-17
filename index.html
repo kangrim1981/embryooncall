@@ -746,6 +746,38 @@
       </div>
     </footer>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      // Save coverage requests straight into the desk's Firestore so every
+      // request from this form shows up in the desk Requests list.
+      // Firestore rules allow anyone to CREATE a request (no sign-in);
+      // only the desk account can read, update or delete one.
+      // Fire-and-forget: if this fails, the FormSubmit email below is
+      // still the backup — the request is never lost.
+      var EOC_firebaseConfig = {
+        apiKey: "AIzaSyBcq6TAI3hM-IN1s5NBt_OHA4f5t_IfMAY",
+        authDomain: "embryooncall-travelers.firebaseapp.com",
+        projectId: "embryooncall-travelers",
+        storageBucket: "embryooncall-travelers.firebasestorage.app",
+        messagingSenderId: "628697252893",
+        appId: "1:628697252893:web:ee197cb07d66560274f2f4"
+      };
+      var EOC_db = null;
+      try {
+        if (typeof firebase !== "undefined") {
+          if (!firebase.apps.length) firebase.initializeApp(EOC_firebaseConfig);
+          EOC_db = firebase.firestore();
+        }
+      } catch (e) { EOC_db = null; }
+      window.EOC_saveRequest = function (doc) {
+        if (!EOC_db) return Promise.reject(new Error("firebase unavailable"));
+        doc.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        doc.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        return EOC_db.collection("requests").add(doc);
+      };
+    </script>
+
     <script>
       // Free form-to-email delivery via FormSubmit (no account / no paid plan).
       // Submissions are emailed automatically to embryooncall@gmail.com.
@@ -848,6 +880,40 @@
           var skills = chips
             .filter(function (c) { return c.getAttribute("aria-pressed") === "true"; })
             .map(function (c) { return c.textContent.trim(); });
+          // Normalize to the desk's canonical skill / position values so the
+          // request matches and edits cleanly in the desk.
+          var deskSkills = ["oocyte retrieval", "sperm preparation for insemination", "in-vitro fertilization (IVF)", "fertilization check", "embryo evaluation", "selection of embryos for transfer and vitrification", "embryo vitrification", "embryo thawing", "embryo transfer", "surgical sperm retrieval and processing", "cell to tube transfer of embryo biopsy material", "micromanipulation", "ICSI", "assisted hatching", "embryo biopsy"];
+          var skillsForDesk = skills.map(function (s) {
+            var low = s.toLowerCase();
+            for (var i = 0; i < deskSkills.length; i++) {
+              if (deskSkills[i].toLowerCase() === low) return deskSkills[i];
+            }
+            return s;
+          });
+          var deskPositions = positions.map(function (p) { return p === "MA (Medical Assistant)" ? "MA" : p; });
+          var startISO = val("startDate");
+          var endISO = val("endDate");
+          var reqDoc = {
+            labName: val("labName") || "—",
+            location: val("labCity") || "",
+            contactName: val("contactName") || "",
+            contactPhone: val("contactPhone") || "",
+            billingEmail: val("billingEmail"),
+            position: deskPositions.join(", "),
+            startDate: startISO || "",
+            endDate: endISO || startISO || "",
+            skillsNeeded: skillsForDesk,
+            notes: val("notes") || "",
+            signedBy: signer,
+            agreementSigned: true,
+            source: "website",
+            status: "new"
+          };
+          var saveToDesk = function () {
+            if (window.EOC_saveRequest) {
+              window.EOC_saveRequest(reqDoc).catch(function () {});
+            }
+          };
           var billingEmail = val("billingEmail");
           if (!billingEmail) {
             copiedMsg.textContent = "Please add a billing email — that's where invoices will be sent.";
@@ -904,10 +970,14 @@
               },
               lastSummary
             ).then(function () {
+              saveToDesk();
               copiedMsg.textContent = "✓ Request sent to EmbryoOnCall — we'll be in touch soon. The summary below is your backup copy.";
             }).catch(function () {
+              saveToDesk();
               copiedMsg.textContent = "Couldn't auto-send — please copy the summary below and email it to ken@embryooncall.com.";
             });
+          } else {
+            saveToDesk();
           }
         });
 
