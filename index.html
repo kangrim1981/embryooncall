@@ -832,6 +832,7 @@
         var chips = Array.prototype.slice.call(document.querySelectorAll("#skillChips .pick"));
         var posChecks = Array.prototype.slice.call(document.querySelectorAll(".pos-check"));
         var lastSummary = "";
+        var sending = false;
 
         chips.forEach(function (chip) {
           chip.addEventListener("click", function () {
@@ -850,12 +851,20 @@
           var signed = signName && signName.value.trim().length > 0;
           var agreed = signAgree && signAgree.checked;
           var hasPosition = getSelectedPositions().length > 0;
-          buildBtn.disabled = !(signed && agreed && hasPosition);
+          buildBtn.disabled = sending || !(signed && agreed && hasPosition);
         }
         if (signName) signName.addEventListener("input", updateBuildState);
         if (signAgree) signAgree.addEventListener("change", updateBuildState);
         posChecks.forEach(function (c) { c.addEventListener("change", updateBuildState); });
         updateBuildState();
+
+        // Clear a stale validation message as soon as the lab fixes the field.
+        ["labName", "startDate", "billingEmail"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener("input", function () { copiedMsg.textContent = ""; });
+          el.addEventListener("change", function () { copiedMsg.textContent = ""; });
+        });
 
         function val(id) {
           var el = document.getElementById(id);
@@ -871,6 +880,8 @@
 
         form.addEventListener("submit", function (e) {
           e.preventDefault();
+          if (sending) return;
+          copiedMsg.textContent = "";
           var signer = val("signName");
           if (!signer) {
             copiedMsg.textContent = "Please sign the agreement — type your full name in the signature field.";
@@ -973,6 +984,8 @@
           out.classList.add("show");
           copyBtn.disabled = false;
           copiedMsg.textContent = "Sending your request to EmbryoOnCall…";
+          sending = true;
+          buildBtn.disabled = true;
           out.scrollIntoView({ block: "nearest", behavior: "smooth" });
           // Save to the desk FIRST — the desk write is the source of truth
           // and must never wait on the email send.
@@ -1001,8 +1014,14 @@
             ).then(function () {
               copiedMsg.textContent = "✓ Request sent to EmbryoOnCall — we'll be in touch soon. The summary below is your backup copy.";
             }).catch(function () {
+              sending = false;
+              updateBuildState();
               copiedMsg.textContent = "Couldn't auto-send — please copy the summary below and email it to ken@embryooncall.com.";
             });
+          } else {
+            sending = false;
+            updateBuildState();
+            copiedMsg.textContent = "Couldn't auto-send — please copy the summary below and email it to ken@embryooncall.com.";
           }
         });
 
