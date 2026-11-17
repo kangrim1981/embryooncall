@@ -642,6 +642,40 @@
             return finish(null);
           })
           .then(function (saved) {
+      // Notify the owner by email (FormSubmit, same AJAX endpoint and
+      hidden-field pattern as the Request Coverage form on index.html).
+      // Fire-and-forget: any failure is swallowed so sign-up can never
+      // break here — the Firestore write above is the source of truth.
+      try {
+        if (saved && saved.doc) {
+          var d = saved.doc;
+          var licenseParts = [];
+          if (d.licenseNumber) licenseParts.push(d.licenseNumber);
+          if (d.licensesCerts) licenseParts.push(d.licensesCerts);
+          var notifyPayload = {
+            Form: "New Traveler Sign-up",
+            Name: d.fullName || "",
+            Position: d.title || "",
+            Email: d.email || "",
+            Phone: d.phone || "",
+            "Base city": d.baseCity || "",
+            "Years of experience": d.yearsExperience == null ? "" : String(d.yearsExperience),
+            "Desired day rate (USD/day)": d.desiredRate == null ? "" : String(d.desiredRate),
+            Skills: Array.isArray(d.skills) ? d.skills.join(", ") : (d.skills || ""),
+            "Available dates": Array.isArray(d.availability) ? d.availability.join(", ") : (d.availability || ""),
+            License: licenseParts.join(" — "),
+            _subject: "New Traveler Sign-up — " + (d.fullName || "") + " (" + (d.title || "") + ")",
+            _template: "table",
+            _captcha: "false"
+          };
+          if (d.email) notifyPayload._replyto = d.email;
+          fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(notifyPayload)
+          }).catch(function () {});
+        }
+      } catch (e) {}
             btn.disabled = false; btn.textContent = "Create my account";
             signUpPending = false;
             // Land on the profile view with everything just entered already
