@@ -1127,7 +1127,7 @@
               : '<button class="btn small primary" data-act="send-invoice" data-id="' + esc(a.id) + '" data-kind="' + kind.toLowerCase() + '" type="button">Send</button>';
             return '<div class="inv-row" style="padding:10px 0;border-top:1px solid var(--line)">' +
               '<div class="grow"><strong>' + kind + ' invoice</strong><div style="color:var(--ink-3);font-size:13.5px">' +
-              esc(a.startDate ? prettyDate(a.startDate) : "") + (a.travelerName ? " · " + esc(a.travelerName) : "") + '</div></div>' +
+              esc(a.startDate ? prettyDate(a.startDate) : "") + (a.travelerName ? " · " + esc(a.travelerName) : "") + (kind === "Final" && a.endDate ? " · send " + esc(prettyDate(a.endDate)) + " — day traveler returns home" : kind === "Deposit" ? " · due within 24 hours of receipt" : "") + '</div></div>' +
               '<div><div style="font-weight:700">' + money(amount) + ' <span style="color:var(--ink-3);font-weight:600;font-size:13px">ACH</span></div>' +
               '<div style="color:var(--ink-2);font-size:13.5px">' + money(cardAmount) + ' by card</div></div>' +
               invSelectHtml(a, field) + sendBtn + '</div>';
@@ -1150,8 +1150,7 @@
         if ((a[statusField] || "not sent") !== "not sent") { toast("That invoice is already marked " + a[statusField] + "."); return; }
         if (a[reqField]) { toast("Already sending — you'll get a text when it's out."); return; }
         if (!a.billingEmail) { toast("No billing email on this assignment — edit it and add one first."); return; }
-        var due = a.startDate || "";
-        if (due) { var d = new Date(due + "T12:00:00"); d.setDate(d.getDate() - 1); due = d.toISOString().slice(0, 10); }
+        var due = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
         var payload = {
           Form: "Send Invoice",
           Kind: isDeposit ? "Deposit invoice" : "Final invoice",
@@ -1434,7 +1433,7 @@
         }).join("");
         openModal(
           '<h3>' + (isNew ? "New assignment" : "Edit assignment") + '</h3>' +
-          '<p class="hint">Deposit = 50% of (rate × days) + commission, due up front. Final = remaining 50% + travel at exact cost. Card totals add 2.9%.</p>' +
+          '<p class="hint">Deposit = 50% of (rate × days) + commission, due within 24 hours of receipt. Final = remaining 50% + travel at exact cost, also due within 24 hours of receipt. Card totals add 2.9%.</p>' +
           '<form id="mForm">' +
           '<div class="grid2">' +
           '<label class="field"><span>Request</span><select id="f_request">' + reqOpts + '</select></label>' +
