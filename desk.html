@@ -1062,9 +1062,10 @@
             '<div class="card-actions"><button class="btn small primary" data-act="assign" data-req="' + esc(r.id) + '" data-trav="' + esc(t.id) + '" type="button">Assign ' + esc((t.fullName || "traveler").split(" ")[0]) + '</button></div>' +
             '</div>';
         }).join("") : '<div class="empty-state">No traveler matches all three: every skill, travel to ' + esc(lab && lab.state ? lab.state : "the lab's state") + ', and availability on all ' + dates.length + ' date(s).</div>';
-        var nearHtml = near.length ? '<div class="card"><div class="card-head"><span class="name" style="font-size:15.5px">Not matching</span></div>' +
+        var nearHtml = near.length ? '<div class="card"><div class="card-head"><span class="name" style="font-size:15.5px">Not matching — assign anyway to override</span></div>' +
           near.map(function (n) {
-            return '<p style="margin:8px 0 0;font-size:14.5px"><strong>' + esc(n.t.fullName || "(no name)") + '</strong> — <span class="reason">' + esc(n.reasons.join("; ")) + '</span></p>';
+            return '<p style="margin:8px 0 0;font-size:14.5px"><strong>' + esc(n.t.fullName || "(no name)") + '</strong> — <span class="reason">' + esc(n.reasons.join("; ")) + '</span> ' +
+              '<button class="btn small primary" data-act="assign" data-req="' + esc(r.id) + '" data-trav="' + esc(n.t.id) + '" type="button">Assign anyway</button></p>';
           }).join("") + '</div>' : "";
         panel.innerHTML = '<div class="card" style="background:var(--bg-2)">' +
           '<div class="card-head"><span class="name">Matches for ' + esc(labName) + ' — ' + esc(r.position || "") + '</span><span class="spacer"></span>' +
@@ -1476,9 +1477,11 @@
         var travOpts = '<option value="">Select traveler…</option>' + travelers.map(function (t) {
           return '<option value="' + esc(t.id) + '"' + (travId === t.id ? " selected" : "") + '>' + esc(t.fullName || "(no name)") + " — " + esc(t.title || "") + '</option>';
         }).join("");
+        var overrideNote = "";
+        if (req && trav) { var chk0 = matchCheck(trav, req, labForForm); if (!chk0.ok) overrideNote = '<p class="hint" style="color:#fbbf24">Override: this traveler doesn\'t fully match this request (' + esc(chk0.reasons.join("; ")) + '). You can still assign them — the assignment will save.</p>'; }
         openModal(
           '<h3>' + (isNew ? "New assignment" : "Edit assignment") + '</h3>' +
-          '<p class="hint">Deposit = 50% of (rate × days) + commission, due within 24 hours of receipt. Final = remaining 50% + travel at exact cost, also due within 24 hours of receipt. Card totals add 2.9%.</p>' +
+          '<p class="hint">Deposit = 50% of (rate × days) + commission, due within 24 hours of receipt. Final = remaining 50% + travel at exact cost, also due within 24 hours of receipt. Card totals add 2.9%.</p>' + overrideNote +
           '<form id="mForm">' +
           '<div class="grid2">' +
           '<label class="field"><span>Request</span><select id="f_request">' + reqOpts + '</select></label>' +
