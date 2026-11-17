@@ -348,7 +348,7 @@
         <section id="tab-invoices" class="hidden">
           <div class="section-head">
             <h2>Invoices</h2>
-            <p>Amounts are computed here; the invoices themselves are issued in the Stripe dashboard. Mark each one as you send and collect it.</p>
+            <p>Tap Send and the invoice goes out through Stripe — you'll get a text when it's sent. Mark it paid here when the money lands.</p>
           </div>
           <div id="invoicesList"></div>
         </section>
@@ -1119,19 +1119,74 @@
         }
         list.innerHTML = assignments.map(function (a) {
           var m = computeMoney(a);
-          function row(kind, amount, cardAmount, field) {
+          function row(kind, amount, cardAmount, field, reqField) {
+            var sent = (a[field] || "not sent") !== "not sent";
+            var queued = !sent && !!a[reqField];
+            var sendBtn = sent ? "" : queued
+              ? '<button class="btn small" type="button" disabled>Sending…</button>'
+              : '<button class="btn small primary" data-act="send-invoice" data-id="' + esc(a.id) + '" data-kind="' + kind.toLowerCase() + '" type="button">Send</button>';
             return '<div class="inv-row" style="padding:10px 0;border-top:1px solid var(--line)">' +
               '<div class="grow"><strong>' + kind + ' invoice</strong><div style="color:var(--ink-3);font-size:13.5px">' +
               esc(a.startDate ? prettyDate(a.startDate) : "") + (a.travelerName ? " · " + esc(a.travelerName) : "") + '</div></div>' +
               '<div><div style="font-weight:700">' + money(amount) + ' <span style="color:var(--ink-3);font-weight:600;font-size:13px">ACH</span></div>' +
               '<div style="color:var(--ink-2);font-size:13.5px">' + money(cardAmount) + ' by card</div></div>' +
-              invSelectHtml(a, field) + '</div>';
+              invSelectHtml(a, field) + sendBtn + '</div>';
           }
           return '<div class="card"><div class="card-head"><span class="name" style="font-size:16px">' + esc(assignmentTitle(a)) + '</span></div>' +
-            row("Deposit", m.deposit, m.depositCard, "depositStatus") +
-            row("Final", m.finalAmt, m.finalCard, "finalStatus") +
+            row("Deposit", m.deposit, m.depositCard, "depositStatus", "depositSendRequestedAt") +
+            row("Final", m.finalAmt, m.finalCard, "finalStatus", "finalSendRequestedAt") +
             '</div>';
         }).join("");
+      }
+
+      /* ---------------- Send invoice ---------------- */
+      /* One tap queues the invoice: it goes out through Stripe and Ken gets a text when it's sent. */
+      function sendInvoice(a, kind) {
+        var m = computeMoney(a);
+        var isDeposit = kind === "deposit";
+        var amount = isDeposit ? m.deposit : m.finalAmt;
+        var statusField = isDeposit ? "depositStatus" : "finalStatus";
+        var reqField = isDeposit ? "depositSendRequestedAt" : "finalSendRequestedAt";
+        if ((a[statusField] || "not sent") !== "not sent") { toast("That invoice is already marked " + a[statusField] + "."); return; }
+        if (a[reqField]) { toast("Already sending — you'll get a text when it's out."); return; }
+        if (!a.billingEmail) { toast("No billing email on this assignment — edit it and add one first."); return; }
+        var due = a.startDate || "";
+        if (due) { var d = new Date(due + "T12:00:00"); d.setDate(d.getDate() - 1); due = d.toISOString().slice(0, 10); }
+        var payload = {
+          Form: "Send Invoice",
+          Kind: isDeposit ? "Deposit invoice" : "Final invoice",
+          "Assignment ID": a.id || "",
+          "Lab": a.labName || "",
+          "Billing email": a.billingEmail || "",
+          "Traveler": a.travelerName || "",
+          "Position": a.position || "",
+          "Start date": a.startDate || "",
+          "End date": a.endDate || "",
+          "Days": String(a.days == null ? "" : a.days),
+          "Day rate (USD)": String(a.dayRate == null ? "" : a.dayRate),
+          "Commission %": String(a.commissionPct == null ? "" : a.commissionPct),
+          "Labor (USD)": String(m.labor),
+          "Commission (USD)": String(m.commission),
+          "Travel cost (USD)": String(Number(a.travelCost) || 0),
+          "Amount due (USD)": String(amount),
+          "Due date": due,
+          _subject: "Send Invoice — " + (isDeposit ? "Deposit" : "Final") + " — " + (a.labName || "") + " / " + (a.travelerName || ""),
+          _template: "table",
+          _captcha: "false"
+        };
+        fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(function (res) {
+          if (!res.ok) throw new Error("queue failed");
+          var upd = { updatedAt: ts() }; upd[reqField] = ts();
+          return db.collection("assignments").doc(a.id).set(upd, { merge: true });
+        }).then(function () {
+          toast("Sending — you'll get a text when the invoice is out.");
+        }).catch(function () {
+          toast("Couldn't queue the invoice — check your connection and try again.");
+        });
       }
 
       /* ---------------- Modal + forms ---------------- */
@@ -1362,6 +1417,9 @@
         var travId = a.travelerId || preset.travelerId || "";
         var req = requestsById()[reqId];
         var trav = travelersById()[travId];
+        var labForForm = req ? labsById()[req.labId] : null;
+        var labNameDefault = a.labName || (req ? (req.labName || (labForForm ? labForForm.name : "")) : "");
+        var billingDefault = a.billingEmail || (labForForm ? labForForm.email || "" : "");
         var startDate = a.startDate || (req ? req.startDate : todayISO());
         var endDate = a.endDate || (req ? req.endDate : todayISO());
         var daysDefault = a.days != null ? a.days : Math.max(1, dateRange(startDate, endDate).length);
@@ -1381,6 +1439,9 @@
           '<div class="grid2">' +
           '<label class="field"><span>Request</span><select id="f_request">' + reqOpts + '</select></label>' +
           '<label class="field"><span>Traveler <span class="req">*</span></span><select id="f_traveler">' + travOpts + '</select></label>' +
+          '</div><div class="grid2">' +
+          '<label class="field"><span>Lab name</span><input type="text" id="f_labname" value="' + esc(labNameDefault) + '" /></label>' +
+          '<label class="field"><span>Billing email <span class="req">*</span></span><input type="email" id="f_billing" value="' + esc(billingDefault) + '" /></label>' +
           '</div><div class="grid2">' +
           '<label class="field"><span>Start date <span class="req">*</span></span><input type="date" id="f_start" value="' + esc(startDate) + '" /></label>' +
           '<label class="field"><span>End date <span class="req">*</span></span><input type="date" id="f_end" value="' + esc(endDate) + '" /></label>' +
@@ -1438,12 +1499,16 @@
           var rate = Number($("f_rate").value), days = Number($("f_days").value);
           if (!(rate > 0)) { showMsg(errBox, "Enter the day rate for this assignment.", "error"); return; }
           if (!(days >= 1)) { showMsg(errBox, "Days must be at least 1.", "error"); return; }
+          var labName = $("f_labname").value.trim() || (rq ? (rq.labName || (lab ? lab.name : "")) : "");
+          var billingEmail = $("f_billing").value.trim();
+          if (!labName) { showMsg(errBox, "Enter the lab name.", "error"); return; }
+          if (!billingEmail) { showMsg(errBox, "Enter the lab's billing email — that's where the invoice goes.", "error"); return; }
           var start = $("f_start").value, end = $("f_end").value;
           if (!start || !end || end < start) { showMsg(errBox, "Check the dates.", "error"); return; }
           var data = {
             requestId: rId || "", travelerId: tId,
             travelerName: t.fullName || "", position: rq ? rq.position : (t.title || ""),
-            labId: rq ? rq.labId : "", labName: rq ? (rq.labName || (lab ? lab.name : "")) : "",
+            labId: rq ? rq.labId : "", labName: labName, billingEmail: billingEmail,
             startDate: start, endDate: end,
             dayRate: rate, days: days,
             commissionPct: Number($("f_pct").value),
@@ -1538,6 +1603,11 @@
             }
             Promise.all(jobs).then(function () { toast("Assignment deleted."); });
           });
+        }
+        else if (act === "send-invoice") {
+          var asg = null;
+          assignments.forEach(function (x) { if (x.id === id) asg = x; });
+          if (asg) sendInvoice(asg, el.getAttribute("data-kind") || "deposit");
         }
         else if (act === "goto-invoices") goTab("invoices");
       });
