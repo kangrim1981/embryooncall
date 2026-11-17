@@ -246,7 +246,8 @@
               </label>
             </div>
             <div id="signUpProfile"></div>
-            <button class="btn btn-primary" id="btnSignUp" type="submit">Create my account</button>
+            <p class="alert alert-ok">You keep 100% of your pay. No commission is taken from you — commission is charged to the lab, not to you. Travel expenses are reimbursed promptly and on time.</p>
+<button class="btn btn-primary" id="btnSignUp" type="submit">Create my account</button>
           </form>
         </div>
       </section>
@@ -254,6 +255,7 @@
       <!-- ============ TRAVELER VIEW ============ -->
       <section id="travelerView" class="hidden">
         <p class="signed-in-as" id="travelerHello"></p>
+<div id="signUpSuccessPay" class="alert alert-ok hidden" role="status"><strong>You keep 100% of your pay — no commission is ever taken from you.</strong><br />Your travel expenses are reimbursed promptly and on time.</div>
 
         <div class="card">
           <h2>My placements</h2>
@@ -682,7 +684,7 @@
             // filled in — the same fields Save profile writes.
             if (saved && saved.doc) {
               showView("traveler");
-              $("travelerHello").textContent = "Signed in as " + username + " — welcome, " + saved.doc.fullName + ".";
+              $("travelerHello").textContent = "Signed in as " + username + " — welcome, " + saved.doc.fullName + "."; $("signUpSuccessPay").classList.remove("hidden");
               fillProfile($("profileForm"), saved.doc);
               edCal.setDates(saved.doc.availability || []);
               loadAssignments(saved.uid);
@@ -843,6 +845,39 @@
             }).then(finish)
           : finish(null);
         chain.then(function () {
+          // Notify the owner by email when a signed-in traveler saves a
+          // profile or availability update (same FormSubmit AJAX endpoint
+          // and field pattern as the sign-up notification above).
+          // Fire-and-forget: any failure is swallowed so the save can
+          // never break here — the Firestore write above is the source
+          // of truth.
+          try {
+            var licenseParts = [];
+            if (p.licenseNumber) licenseParts.push(p.licenseNumber);
+            if (p.licensesCerts) licenseParts.push(p.licensesCerts);
+            var updatePayload = {
+              Form: "Traveler Profile Updated",
+              Name: p.fullName || "",
+              Position: p.title || "",
+              Email: p.email || "",
+              Phone: p.phone || "",
+              "Base city": p.baseCity || "",
+              "Years of experience": p.yearsExperience == null ? "" : String(p.yearsExperience),
+              "Desired day rate (USD/day)": p.desiredRate == null ? "" : String(p.desiredRate),
+              Skills: Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""),
+              "Available dates": edCal.getDates().join(", "),
+              License: licenseParts.join(" — "),
+              _subject: "Traveler Profile Updated — " + (p.fullName || "") + " (" + (p.title || "") + ")",
+              _template: "table",
+              _captcha: "false"
+            };
+            if (p.email) updatePayload._replyto = p.email;
+            fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Accept": "application/json" },
+              body: JSON.stringify(updatePayload)
+            }).catch(function () {});
+          } catch (e) {}
           btn.disabled = false; btn.textContent = "Save profile";
           showError(okBox, "Profile saved.");
           okBox.classList.remove("hidden");
