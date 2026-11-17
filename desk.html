@@ -982,10 +982,20 @@
       function requestDates(r) { return dateRange(r.startDate, r.endDate); }
       function matchCheck(t, r, lab) {
         var reasons = [];
+        // Hyphens/spaces differ between sources ("Cell-to-tube…" vs
+        // "cell to tube…") — compare with both normalized.
+        var normSkill = function (s) { return String(s).toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim(); };
         var tSkills = {};
-        (t.skills || []).forEach(function (s) { tSkills[String(s).toLowerCase().trim()] = true; });
-        var missingSkills = (r.skillsNeeded || []).filter(function (s) { return !tSkills[String(s).toLowerCase().trim()]; });
+        (t.skills || []).forEach(function (s) { tSkills[normSkill(s)] = true; });
+        var missingSkills = (r.skillsNeeded || []).filter(function (s) { return !tSkills[normSkill(s)]; });
         if (missingSkills.length) reasons.push("missing skills: " + missingSkills.join(", "));
+        // Role must match too: a Nurse with the right skills/dates is not
+        // a match for a Senior Embryologist request.
+        var normTitle = function (s) { var v = String(s || "").trim(); if (v === "MA (Medical Assistant)") v = "MA"; return v.toLowerCase(); };
+        var reqPositions = (r.position || "").split(",").map(function (p) { return normTitle(p); }).filter(Boolean);
+        if (reqPositions.length && reqPositions.indexOf(normTitle(t.title)) < 0) {
+          reasons.push("position is " + ((t.title || "").trim() || "not set") + ", request needs " + reqPositions.join(" / "));
+        }
         if (lab && lab.state) {
           if ((t.states || []).indexOf(lab.state) < 0) reasons.push("doesn't travel to " + lab.state);
         }
