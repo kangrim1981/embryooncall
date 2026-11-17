@@ -171,6 +171,7 @@
       .status-new { background: rgba(251,191,36,.14); color: var(--amber); border: 1px solid rgba(251,191,36,.4); }
       .status-matched { background: rgba(96,165,250,.14); color: #93c5fd; border: 1px solid rgba(96,165,250,.4); }
       .status-assigned { background: rgba(45,212,191,.14); color: var(--teal); border: 1px solid rgba(45,212,191,.4); }
+      .status-cancelled { background: rgba(248,113,113,.12); color: #fca5a5; border: 1px solid rgba(248,113,113,.35); }
       .status-done { background: rgba(52,211,153,.14); color: var(--green); border: 1px solid rgba(52,211,153,.4); }
       select.status-select, select.inv-select {
         background: var(--bg-2); color: var(--ink); border: 1px solid var(--line);
@@ -429,7 +430,7 @@
         "embryo biopsy"
       ];
       var STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"];
-      var REQ_STATUSES = ["new", "matched", "assigned", "done"];
+      var REQ_STATUSES = ["new", "matched", "assigned", "done", "cancelled"];
       var INV_STATUSES = ["not sent", "sent", "paid", "voided"];
 
       var FIRESTORE_RULES = [
@@ -1012,10 +1013,11 @@
             (r.notes ? '<dt>Notes</dt><dd>' + esc(r.notes) + '</dd>' : "") +
             '</dl>' +
             '<div class="card-actions">' +
-            '<button class="btn small primary" data-act="find-matches" data-id="' + esc(r.id) + '" type="button">Find matches</button>' +
+            (r.status === "cancelled" ? "" : '<button class="btn small primary" data-act="find-matches" data-id="' + esc(r.id) + '" type="button">Find matches</button>') +
             '<button class="btn small" data-act="edit-request" data-id="' + esc(r.id) + '" type="button">Edit</button>' +
             '<label style="display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--ink-2)">Status ' +
             '<select class="status-select" data-req-status="' + esc(r.id) + '">' + statusOpts + '</select></label>' +
+            (r.status === "cancelled" ? "" : '<button class="btn small" data-act="cancel-request" data-id="' + esc(r.id) + '" type="button">Cancel</button>') +
             '<button class="btn small danger" data-act="del-request" data-id="' + esc(r.id) + '" type="button">Delete</button>' +
             '</div></div>';
         }).join("");
@@ -1581,6 +1583,10 @@
             if (matchRequestId === id) { matchRequestId = null; $("matchPanel").innerHTML = ""; }
             db.collection("requests").doc(id).delete().then(function () { toast("Request deleted."); });
           });
+        }
+        else if (act === "cancel-request") {
+          if (matchRequestId === id) { matchRequestId = null; $("matchPanel").innerHTML = ""; }
+          db.collection("requests").doc(id).set({ status: "cancelled", updatedAt: ts() }, { merge: true }).then(function () { toast("Request cancelled."); });
         }
         else if (act === "find-matches") { renderMatches(id); }
         else if (act === "close-matches") { matchRequestId = null; $("matchPanel").innerHTML = ""; }
