@@ -77,19 +77,24 @@
         -webkit-backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--border);
       }
-      .topbar-in { display: flex; align-items: center; gap: 16px; min-height: 60px; }
+      .topbar-in { display: flex; align-items: center; gap: 10px; min-height: 60px; }
       .brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--text); margin-right: auto; }
       .brand .name { font-family: var(--font-display); font-weight: 800; font-size: 19px; letter-spacing: -0.02em; }
       .brand .name em { font-style: normal; color: var(--accent-2); }
       .brand .tag { display: none; font-size: 12.5px; font-weight: 600; color: var(--dim); }
       @media (min-width: 720px) { .brand .tag { display: inline; } }
-      .nav { display: flex; align-items: center; gap: 4px; }
+      .nav { display: flex; align-items: center; gap: 2px; }
       .nav a.link {
-        display: none; align-items: center; min-height: 40px; padding: 0 12px;
+        display: none; align-items: center; min-height: 40px; padding: 0 9px;
         color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 999px;
       }
       .nav a.link:hover { background: var(--surface-alt); }
       @media (min-width: 720px) { .nav a.link { display: inline-flex; } }
+      /* Q&A link stays visible on mobile too */
+      .nav a.link.link-qa { display: inline-flex; }
+      @media (max-width: 719px) {
+        .nav a.link.link-qa { padding: 0 8px; font-size: 13.5px; }
+      }
 
       .btn {
         display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -201,6 +206,22 @@
         padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
         background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03);
       }
+
+      /* ---- Q&A ---- */
+      .qa-group { margin-top: 26px; }
+      .qa-group > h3 { font-size: 20px; font-weight: 800; margin: 0 0 12px; }
+      .qa-list { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-sm); overflow: hidden; }
+      .qa-item + .qa-item { border-top: 1px solid var(--border); }
+      .qa-item summary {
+        display: flex; align-items: center; gap: 10px; padding: 15px 20px;
+        font-family: var(--font-display); font-size: 15px; font-weight: 700; line-height: 1.35;
+        cursor: pointer; list-style: none;
+      }
+      .qa-item summary::-webkit-details-marker { display: none; }
+      .qa-item summary::after { content: "+"; flex: none; margin-left: auto; color: var(--accent-2); font-size: 18px; font-weight: 800; line-height: 1; }
+      .qa-item[open ] summary::after { content: "–"; }
+      .qa-item p { margin: 0; padding: 0 20px 16px; font-size: 14.5px; color: var(--dim); line-height: 1.6; }
+      .qa-more { margin: 18px 0 0; font-size: 14.5px; color: var(--dim); }
 
       /* ---- Terms ---- */
       .terms li { align-items: flex-start; }
@@ -334,6 +355,7 @@
         <nav class="nav" aria-label="Page sections">
           <a class="link" href="#offer">What we offer</a>
           <a class="link" href="#terms">Lab terms</a>
+          <a class="link link-qa" href="#qa">Q&amp;A</a>
           <a class="link" href="#contact">Contact</a>
           <a class="link" href="https://embryooncall.com/travelers.html">Join the traveling roster</a>
           <a class="link" href="https://embryooncall.com/desk.html">Desk</a>
@@ -542,6 +564,106 @@
     </div>
   </section>
 
+      <!-- ===================== Q&A ===================== -->
+      <section class="block" id="qa">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="eyebrow">Questions, answered</p>
+            <h2>Q&amp;A</h2>
+            <p class="sub">
+              Plain answers for travelers and for labs. If your question is
+              not here, reach out — we will answer it.
+            </p>
+          </div>
+
+          <div class="qa-group">
+            <h3>For travelers</h3>
+            <div class="qa-list">
+              <details class="qa-item">
+                <summary>What is per-diem cover?</summary>
+                <p>A lab needs an extra pair of trained hands for a set number of days — someone is sick, on leave, or a busy cycle needs more staff. You step in, do the work for those days, and go home when the cover ends. You pick the dates you are available, and you are never sent somewhere you did not agree to.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How does an assignment work?</summary>
+                <p>A lab tells us the dates and skills it needs. If the dates and skills fit you, we send you the details — the lab, the dates, and what the work covers. You can accept or decline. If you accept, the lab pays a deposit before your contact details are shared, travel is arranged, and you start on day one ready to work.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What roles do you place?</summary>
+                <p>Five roles: Senior Embryologist, Andrologist-CLS, MA (Medical Assistant), Sonographer, and Nurse. Everyone we place has 5+ years of experience.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How do I get paid — and do I keep all of it?</summary>
+                <p>You keep 100% of your pay. The commission is charged to the lab, not taken out of what you earn.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How does travel work?</summary>
+                <p>Travel is paid back at exact cost, and paid promptly. Keep your receipts — receipts are needed for everything.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How do I set the dates I am available?</summary>
+                <p>You set your own available dates when you join the roster, and you can update them any time. The more dates you list, the more assignments you can match — but you only ever go where you said yes.</p>
+              </details>
+              <details class="qa-item">
+                <summary>Can I do per-diem work while I have another job?</summary>
+                <p>Yes. Per-diem cover is flexible by design — you pick up assignments around your own schedule, and you can keep a staff job or another travel job at the same time.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What happens after I am offered an assignment — can I change my mind?</summary>
+                <p>When you are offered an assignment, you can accept or decline it. If you decline, we offer it to someone else. Nothing is booked until you say yes.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How is per-diem different from a travel contract or a permanent job?</summary>
+                <p>Per-diem means you cover a lab for a few days at a time, when it fits your schedule. A travel contract is a longer stay at one place, usually weeks or months. A permanent job is a full-time staff position at one lab. EmbryoOnCall is per-diem cover only.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How do I get started?</summary>
+                <p>Join the traveling roster — tell us your role, your skills and experience, and the dates you are available. When a lab needs someone who matches you, we will be in touch.</p>
+              </details>
+            </div>
+          </div>
+
+          <div class="qa-group">
+            <h3>For labs</h3>
+            <div class="qa-list">
+              <details class="qa-item">
+                <summary>What does EmbryoOnCall do?</summary>
+                <p>We place trained per-diem IVF professionals into fertility and IVF labs that need cover — for a day, a week, or a full cycle. You tell us the dates and skills you need, we match someone qualified, and they step in ready to work from day one.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What roles can you cover?</summary>
+                <p>Five roles: Senior Embryologist, Andrologist-CLS, MA (Medical Assistant), Sonographer, and Nurse. Everyone we place has 5+ years of experience.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How do I request cover?</summary>
+                <p>Fill in the request form on this page with your lab, the dates, the role, and the skills you need. We match qualified staff, confirm they are available, and can send you a resume for anyone we propose before you agree.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How does payment work?</summary>
+                <p>A 50% deposit is due before we place anyone or share their contact details. The final invoice is sent the day the traveler returns home, and it is due within 24 hours of receipt.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What is the commission?</summary>
+                <p>The commission is charged to the lab: 10% for a standard assignment, 7% for a multi-day assignment. It is never taken from the traveler&rsquo;s pay.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How does travel work?</summary>
+                <p>Travel is charged at exact cost — what it actually costs, nothing added. Receipts are required for everything.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What is the non-circumvention rule?</summary>
+                <p>For 12 months after we introduce a professional to your lab, all bookings for that person go through EmbryoOnCall — including re-hires. If a lab hires or engages them directly in that time, a direct-hire fee applies: $5,000, or 20% of what the lab pays them directly in those 12 months, whichever is higher. A lab that goes direct also loses access to future placements.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How fast can cover start?</summary>
+                <p>As soon as we have matched someone, they have accepted, and the deposit is paid. Send your request with as much notice as you can — the more notice, the more choice you will have.</p>
+              </details>
+            </div>
+          </div>
+
+          <p class="qa-more">Still have a question? <a href="#contact">Contact EmbryoOnCall</a> — we will get back to you.</p>
+        </div>
+      </section>
+
       <!-- ===================== REQUEST COVERAGE ===================== -->
       <section class="block" id="request">
         <div class="wrap">
@@ -742,7 +864,7 @@
     <footer>
       <div class="wrap frow">
         <p>© 2026 EmbryoOnCall — Per-diem IVF lab staffing, nationwide.</p>
-        <p><a href="#request">Request coverage</a> · <a href="https://embryooncall.com/travelers.html">Join the traveling roster</a> · <a href="https://embryooncall.com/desk.html">Desk</a> · <a href="https://www.linkedin.com/company/embryooncall">LinkedIn</a> · <a href="mailto:Ken@embryooncall.com">Ken@embryooncall.com</a> · <a href="tel:+14075924793">407-592-4793</a></p>
+        <p><a href="#request">Request coverage</a> · <a href="#qa">Q&A</a> · <a href="https://embryooncall.com/travelers.html">Join the traveling roster</a> · <a href="https://embryooncall.com/desk.html">Desk</a> · <a href="https://www.linkedin.com/company/embryooncall">LinkedIn</a> · <a href="mailto:Ken@embryooncall.com">Ken@embryooncall.com</a> · <a href="tel:+14075924793">407-592-4793</a></p>
       </div>
     </footer>
 
