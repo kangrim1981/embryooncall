@@ -831,7 +831,7 @@
                 action = '<div class="p-actions"><button class="btn btn-primary" type="button" data-resp="Accepted" data-aid="' + esc(aid) + '">Accept</button>' +
                   '<button class="btn btn-secondary" type="button" data-resp="Declined" data-aid="' + esc(aid) + '">Decline</button></div>';
               } else if (resp) {
-                action = '<div class="p-meta">You ' + esc(resp.toLowerCase()) + ' — Ken has been notified.</div>';
+                action = '<div class="p-meta">You ' + esc(resp.toLowerCase()) + ' — the administrator has been notified.</div>';
               }
               return '<div class="placement"><div class="p-title">' + esc(title) + '</div><div class="p-meta">' + bits + "</div>" + notes + action + "</div>";
             }).join("");
