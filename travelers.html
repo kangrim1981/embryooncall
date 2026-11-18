@@ -253,6 +253,11 @@
             <div class="agreement">
               <p>To help match you with the right labs, we use AI tools (our own and some from our outside partners) to review your application and see how your background lines up with what each lab needs. By creating your account, you agree to let us use your application and personal data for this. Your profile is only shared with a lab once you have been matched and approved for one of their requests — it is never sold or shared anywhere else.</p>
             </div>
+            <h3>Travel bookings &amp; reimbursement</h3>
+            <div class="agreement">
+              <p>Every booking and reimbursement is handled through Navan.</p>
+            </div>
+            <label class="check"><input type="checkbox" id="suNavanAgree" /> <span>I agree that all bookings and reimbursements go through Navan.</span></label>
 <button class="btn btn-primary" id="btnSignUp" type="submit">Create my account</button>
           </form>
         </div>
@@ -364,6 +369,7 @@
           '<label class="field"><span>Base city <span class="req">*</span></span><input type="text" data-f="baseCity" placeholder="City, State" /></label>' +
           '<label class="field"><span>Years of experience <span class="req">*</span></span><input type="number" data-f="yearsExperience" min="0" max="60" step="1" /></label>' +
         '</div>' +
+        '<label class="field"><span>Home address <span class="req">*</span></span><input type="text" data-f="homeAddress" placeholder="Street address, City, State, ZIP" autocomplete="street-address" /></label>' +
         '<div class="grid2">' +
           '<label class="field"><span>License number</span><input type="text" data-f="licenseNumber" /></label>' +
           '<label class="field"><span>Desired rate (USD per day) <span class="req">*</span></span><input type="number" data-f="desiredRate" min="0" step="1" placeholder="Your desired day rate" /></label>' +
@@ -479,6 +485,7 @@
           email: val("email"),
           phone: val("phone"),
           baseCity: val("baseCity"),
+          homeAddress: val("homeAddress"),
           yearsExperience: val("yearsExperience") === "" ? null : Number(val("yearsExperience")),
           licenseNumber: val("licenseNumber"),
           licensesCerts: val("licensesCerts"),
@@ -498,7 +505,7 @@
         }
         set("fullName", data.fullName); set("title", data.title);
         set("email", data.email); set("phone", data.phone);
-        set("baseCity", data.baseCity); set("yearsExperience", data.yearsExperience);
+        set("baseCity", data.baseCity); set("homeAddress", data.homeAddress); set("yearsExperience", data.yearsExperience);
         set("licenseNumber", data.licenseNumber); set("licensesCerts", data.licensesCerts);
         set("desiredRate", data.desiredRate);
         set("signature", data.signature); set("signatureDate", data.signatureDate);
@@ -515,6 +522,7 @@
         if (!p.email || p.email.indexOf("@") < 0) return "Please enter a valid contact email.";
         if (!p.phone) return "Please enter your phone number.";
         if (!p.baseCity) return "Please enter your base city.";
+        if (!p.homeAddress) return "Please enter your home address.";
         if (p.yearsExperience == null || isNaN(p.yearsExperience) || p.yearsExperience < 0) return "Please enter your years of experience.";
         if (p.desiredRate == null || isNaN(p.desiredRate) || p.desiredRate <= 0) return "Please enter your desired rate (USD per day).";
         if (!p.skills.length) return "Please write your skill set.";
@@ -609,6 +617,7 @@
         var p = collectProfile($("signUpForm"));
         var vErr = validateProfile(p);
         if (vErr) { showError(errBox, vErr); return; }
+        if (!$("suNavanAgree").checked) { showError(errBox, "Please agree that all bookings and reimbursements go through Navan."); return; }
 
         var btn = $("btnSignUp"); btn.disabled = true; btn.textContent = "Creating account…";
         signUpPending = true;
@@ -626,11 +635,12 @@
                 username: username,
                 authEmail: syntheticEmail,
                 fullName: p.fullName, title: p.title, email: p.email, phone: p.phone,
-                baseCity: p.baseCity, yearsExperience: p.yearsExperience,
+                baseCity: p.baseCity, homeAddress: p.homeAddress, yearsExperience: p.yearsExperience,
                 licenseNumber: p.licenseNumber, licensesCerts: p.licensesCerts,
                 desiredRate: p.desiredRate, skills: p.skills, states: p.states,
                 availability: suCal.getDates(),
                 signature: p.signature, signatureDate: p.signatureDate,
+                navanAgreed: true,
                 resumeName: resumeInfo ? resumeInfo.resumeName : "",
                 resumePath: resumeInfo ? resumeInfo.resumePath : "",
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -667,11 +677,13 @@
             Email: d.email || "",
             Phone: d.phone || "",
             "Base city": d.baseCity || "",
+            "Home address": d.homeAddress || "",
             "Years of experience": d.yearsExperience == null ? "" : String(d.yearsExperience),
             "Desired day rate (USD/day)": d.desiredRate == null ? "" : String(d.desiredRate),
             Skills: Array.isArray(d.skills) ? d.skills.join(", ") : (d.skills || ""),
             "Available dates": Array.isArray(d.availability) ? d.availability.join(", ") : (d.availability || ""),
             License: licenseParts.join(" — "),
+            "Navan agreement": "Agreed — all bookings and reimbursements through Navan",
             _subject: "New Traveler Sign-up — " + (d.fullName || "") + " (" + (d.title || "") + ")",
             _template: "table",
             _captcha: "false"
@@ -804,6 +816,14 @@
       var assignmentById = {};
       var lastAssignmentUid = null;
 
+      /* Past-tense phrase for a stored answer ("Accepted" -> "You accepted",
+         "Interested" -> "You said you're interested"). */
+      function respPhrase(resp) {
+        if (resp === "Interested") return "You said you're interested";
+        if (resp === "Not interested") return "You said you're not interested";
+        return "You " + String(resp || "").toLowerCase();
+      }
+
       function loadAssignments(uid) {
         lastAssignmentUid = uid;
         var list = $("assignmentsList");
@@ -820,9 +840,11 @@
               if (a.startDate || a.date) when = prettyDate(a.startDate || a.date);
               if (a.endDate && a.endDate !== (a.startDate || a.date)) when += " – " + prettyDate(a.endDate);
               var where = [a.city, a.state].filter(Boolean).join(", ");
-              var bits = [when, where, a.role || a.position || "", a.status || ""].filter(Boolean).map(esc).join(" · ");
+              var isAlert = (a.status === "Alerted") || !!a.alertId;
+              var statusText = isAlert ? "New opportunity" : (a.status || "");
+              var bits = [when, where, a.role || a.position || "", statusText].filter(Boolean).map(esc).join(" · ");
               var notes = a.notes ? '<div class="p-meta">' + esc(a.notes) + "</div>" : "";
-              var aid = a.assignmentId || "";
+              var aid = a.assignmentId || a.alertId || "";
               if (aid) assignmentById[aid] = a;
               var action = "";
               var resp = "";
@@ -830,8 +852,11 @@
               if ((a.status || "") === "Assigned" && aid && !resp) {
                 action = '<div class="p-actions"><button class="btn btn-primary" type="button" data-resp="Accepted" data-aid="' + esc(aid) + '">Accept</button>' +
                   '<button class="btn btn-secondary" type="button" data-resp="Declined" data-aid="' + esc(aid) + '">Decline</button></div>';
+              } else if (isAlert && aid && !resp) {
+                action = '<div class="p-actions"><button class="btn btn-primary" type="button" data-resp="Interested" data-aid="' + esc(aid) + '">Interested</button>' +
+                  '<button class="btn btn-secondary" type="button" data-resp="Not interested" data-aid="' + esc(aid) + '">Not interested</button></div>';
               } else if (resp) {
-                action = '<div class="p-meta">You ' + esc(resp.toLowerCase()) + ' — the administrator has been notified.</div>';
+                action = '<div class="p-meta">' + esc(respPhrase(resp)) + ' — the administrator has been notified.</div>';
               }
               return '<div class="placement"><div class="p-title">' + esc(title) + '</div><div class="p-meta">' + bits + "</div>" + notes + action + "</div>";
             }).join("");
@@ -849,20 +874,45 @@
         var a = assignmentById[aid];
         if (!a) return;
         btn.disabled = true;
-        var payload = {
-          Form: "Traveler Response",
-          "Assignment ID": aid,
-          "Request ID": a.requestId || "",
-          "Traveler": portalTravelerName || val("fullName") || "",
-          "Response": resp,
-          "Lab": a.labName || a.facility || a.lab || "",
-          "Position": a.role || a.position || "",
-          "Start date": a.startDate || a.date || "",
-          "End date": a.endDate || "",
-          _subject: "Traveler Response — " + resp + " — " + (portalTravelerName || val("fullName") || "") + " / " + (a.labName || a.facility || a.lab || ""),
-          _template: "table",
-          _captcha: "false"
-        };
+        var who = portalTravelerName || val("fullName") || "";
+        var payload;
+        if ((a.status === "Alerted") || !!a.alertId) {
+          // Job-alert answer: no lab name exists for an alert yet, so the
+          // response carries city/state and the offered day rate instead.
+          // Same FormSubmit pipe; the alert-response drain tells Ken.
+          var alertWhere = [a.city, a.state].filter(Boolean).join(", ");
+          payload = {
+            Form: "Traveler Alert Response",
+            "Alert ID": aid,
+            "Request ID": a.requestId || "",
+            "Traveler": who,
+            "Response": resp,
+            "City": a.city || "",
+            "State": a.state || "",
+            "Position": a.role || a.position || "",
+            "Start date": a.startDate || a.date || "",
+            "End date": a.endDate || "",
+            "Day rate (USD)": String(a.dayRate == null ? "" : a.dayRate),
+            _subject: "Traveler Alert Response — " + resp + " — " + who + " / " + alertWhere,
+            _template: "table",
+            _captcha: "false"
+          };
+        } else {
+          payload = {
+            Form: "Traveler Response",
+            "Assignment ID": aid,
+            "Request ID": a.requestId || "",
+            "Traveler": who,
+            "Response": resp,
+            "Lab": a.labName || a.facility || a.lab || "",
+            "Position": a.role || a.position || "",
+            "Start date": a.startDate || a.date || "",
+            "End date": a.endDate || "",
+            _subject: "Traveler Response — " + resp + " — " + who + " / " + (a.labName || a.facility || a.lab || ""),
+            _template: "table",
+            _captcha: "false"
+          };
+        }
         fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -893,7 +943,7 @@
         var finish = function (resumeInfo) {
           var update = {
             fullName: p.fullName, title: p.title, email: p.email, phone: p.phone,
-            baseCity: p.baseCity, yearsExperience: p.yearsExperience,
+            baseCity: p.baseCity, homeAddress: p.homeAddress, yearsExperience: p.yearsExperience,
             licenseNumber: p.licenseNumber, licensesCerts: p.licensesCerts,
             desiredRate: p.desiredRate, skills: p.skills, states: p.states,
             availability: edCal.getDates(),
@@ -928,6 +978,7 @@
               Email: p.email || "",
               Phone: p.phone || "",
               "Base city": p.baseCity || "",
+              "Home address": p.homeAddress || "",
               "Years of experience": p.yearsExperience == null ? "" : String(p.yearsExperience),
               "Desired day rate (USD/day)": p.desiredRate == null ? "" : String(p.desiredRate),
               Skills: Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""),
