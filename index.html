@@ -222,6 +222,13 @@
       .qa-item[open ] summary::after { content: "–"; }
       .qa-item p { margin: 0; padding: 0 20px 16px; font-size: 14.5px; color: var(--dim); line-height: 1.6; }
       .qa-more { margin: 18px 0 0; font-size: 14.5px; color: var(--dim); }
+      .request-tab-head { display: block; list-style: none; cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-sm); padding: 20px; position: relative; }
+      .request-tab-head::-webkit-details-marker { display: none; }
+      .request-tab-head h2 { margin: 10px 0 0; font-size: 28px; font-weight: 800; line-height: 1.1; }
+      @media (min-width: 900px) { .request-tab-head h2 { font-size: 34px; } }
+      .request-tab-head::after { content: "+"; position: absolute; top: 20px; right: 20px; color: var(--accent-2); font-size: 22px; font-weight: 800; line-height: 1; }
+      .request-tab[open ] .request-tab-head::after { content: "–"; }
+      .request-tab > p.sub { margin: 16px 0 0; padding: 0 4px; color: var(--dim); max-width: 60ch; }
 
       /* ---- Terms ---- */
       .terms li { align-items: flex-start; }
@@ -614,9 +621,11 @@
       <!-- ===================== REQUEST COVERAGE ===================== -->
       <section class="block" id="request">
         <div class="wrap">
-          <div class="sec-head">
-            <p class="eyebrow">Request coverage</p>
-            <h2>Tell us what your lab needs</h2>
+          <details class="request-tab" id="requestTab">
+            <summary class="request-tab-head">
+              <p class="eyebrow">Request coverage</p>
+              <h2>Tell us what your lab needs</h2>
+            </summary>
             <p class="sub">
               Fill this in and submit — your request is sent to EmbryoOnCall
               automatically. We match qualified staff and confirm
@@ -626,9 +635,8 @@
               and sign the consent &amp; non-circumvention agreement below
               before the request goes through.
             </p>
-          </div>
 
-          <form class="form-card" id="reqForm" novalidate>
+            <form class="form-card" id="reqForm" novalidate>
             <div class="grid2">
               <div class="field">
                 <label class="f" for="labName">Lab / clinic name</label>
@@ -786,6 +794,7 @@
 
             <div class="summary-out" id="summaryOut" aria-label="Your request summary"></div>
           </form>
+          </details>
         </div>
       </section>
 
@@ -1126,5 +1135,15 @@
     </script>
 
 
+    <script>
+      (function () {
+        var tab = document.getElementById("requestTab");
+        if (!tab) return;
+        Array.prototype.forEach.call(document.querySelectorAll('a[href="#request"]'), function (a) {
+          a.addEventListener("click", function () { tab.open = true; });
+        });
+        if (location.hash === "#request") tab.open = true;
+      })();
+    </script>
   </body>
 </html>
