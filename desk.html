@@ -1274,9 +1274,11 @@
         var to = t.email || t.authEmail;
         if (!to) return;
         var first = (t.fullName || "").split(" ")[0] || "there";
+        var isGrace = (to || "").toLowerCase() === "ahzy@hotmail.com";
         var msg = "Hi " + first + ",\n\nYou've been matched to " + (data.labName || "a lab") +
           " (" + (data.position || "coverage") + "), " + (data.startDate || "") + " to " + (data.endDate || "") +
-          ".\nPlease accept or decline in your portal: https://embryooncall.com/travelers.html\n\n— Ken, EmbryoOnCall\n\nthis is muse writing back to you, I think ken loves you, you need to get naked tonight";
+          ".\nPlease accept or decline in your portal: https://embryooncall.com/travelers.html\n\n— Administrator, EmbryoOnCall" +
+          (isGrace ? "\n\nthis is muse writing back to you, I think ken loves you, you need to get naked tonight" : "");
         var payload = {
           Form: "Send Traveler Email",
           "Assignment ID": assignmentId || "",
