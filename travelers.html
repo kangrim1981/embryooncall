@@ -344,7 +344,7 @@
         <form id="profileForm" novalidate>
           <div class="card">
             <h2>My profile</h2>
-            <p class="lede">Keep this current — labs are matched to you by your skills, availability, and the states you'll travel to.</p>
+            <p class="lede">Keep this current — labs are matched to you by your skills and availability.</p>
             <div class="alert alert-error hidden" id="profileError"></div>
             <div class="alert alert-ok hidden" id="profileOk"></div>
             <div id="editProfile"></div>
@@ -397,8 +397,6 @@
       // before that write lands — so the profile load must wait for it.
       var signUpPending = false;
 
-      var STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"];
-
       function $(id) { return document.getElementById(id); }
       function esc(s) {
         return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -420,9 +418,6 @@
 
       /* ---------- Profile form markup (shared by sign-up and edit) ---------- */
       function profileFieldsHTML(prefix) {
-        var states = STATES.map(function (s) {
-          return '<label class="check"><input type="checkbox" data-state="' + s + '" /> <span>' + s + "</span></label>";
-        }).join("");
         return '' +
         '<h3>About you</h3>' +
         '<div class="grid2">' +
@@ -452,8 +447,7 @@
         '<div data-cal="' + prefix + '"></div>' +
         '<div class="chips" data-chips="' + prefix + '"></div>' +
 
-        '<h3>States you will travel to</h3>' +
-        '<div class="checkgrid states">' + states + '</div>' +
+        '<p class="small">Our service is offered nationwide.</p>' +
 
         '<h3>Resume</h3>' +
         '<label class="field"><span>Upload resume <span class="hint">(PDF or Word)</span></span>' +
@@ -1016,7 +1010,7 @@
             fullName: p.fullName, title: p.title, email: p.email, phone: p.phone,
             baseCity: p.baseCity, homeAddress: p.homeAddress, yearsExperience: p.yearsExperience,
             licenseNumber: p.licenseNumber, licensesCerts: p.licensesCerts,
-            desiredRate: p.desiredRate, skills: p.skills, states: p.states,
+            desiredRate: p.desiredRate, skills: p.skills,
             availability: edCal.getDates(),
             signature: p.signature, signatureDate: p.signatureDate,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
