@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="EmbryoOnCall places vetted per-diem IVF professionals into fertility and IVF labs nationwide — senior embryologists, andrologists, medical assistants, sonographers, and nurses with 5+ years of experience." />
+    <link rel="icon" href="favicon.png" /> <link rel="apple-touch-icon" href="apple-touch-icon.png" /> <meta property="og:type" content="website" /> <meta property="og:site_name" content="EmbryoOnCall" /> <meta property="og:title" content="EmbryoOnCall — Experienced IVF staff, on call for your lab." /> <meta property="og:description" content="EmbryoOnCall places vetted per-diem IVF professionals into fertility and IVF labs nationwide — senior embryologists, andrologists, medical assistants, sonographers, and nurses with 5+ years of experience." /> <meta property="og:url" content="https://embryooncall.com/" /> <meta property="og:image" content="https://embryooncall.com/og-image-1200x630.png" /> <meta property="og:image:width" content="1200" /> <meta property="og:image:height" content="630" /> <meta name="twitter:card" content="summary_large_image" />
+    <title>EmbryoOnCall for Labs</title>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "EmbryoOnCall",
+  "url": "https://embryooncall.com/",
+  "description": "EmbryoOnCall places vetted per-diem IVF professionals into fertility and IVF labs nationwide — senior embryologists, andrologists, medical assistants, sonographers, and nurses with 5+ years of experience.",
+  "email": "Ken@embryooncall.com",
+  "telephone": "+1-407-592-4793",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Winter Springs",
+    "addressRegion": "FL",
+    "addressCountry": "US"
+  },
+  "areaServed": "US"
+}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f6f7f8;
+        --surface: #ffffff;
+        --surface-alt: #eef3f3;
+        --text: #0f1e22;
+        --dim: #5d7076;
+        --border: #e2e8e9;
+        --accent: #0a4f5e;
+        --accent-2: #0e6b7a;
+        --accent-soft: #e6f2f2;
+        --accent-ink: #ffffff;
+        --accent-glow: rgba(10, 79, 94, 0.22);
+        --shadow-sm: 0 1px 2px rgba(15,30,34,0.04), 0 4px 16px rgba(15,30,34,0.04);
+        --shadow-md: 0 4px 24px rgba(15,30,34,0.07), 0 1px 3px rgba(15,30,34,0.05);
+        --font-display: "Manrope", system-ui, sans-serif;
+        --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0a1215;
+          --surface: #111e23;
+          --surface-alt: #182a30;
+          --text: #edf4f3;
+          --dim: #93a8ad;
+          --border: #22383f;
+          --accent: #2fa8bc;
+          --accent-2: #3bb8cc;
+          --accent-soft: #162f36;
+          --accent-ink: #ffffff;
+          --accent-glow: rgba(47, 168, 188, 0.25);
+          --shadow-sm: 0 1px 2px rgba(0,0,0,0.25), 0 4px 16px rgba(0,0,0,0.18);
+          --shadow-md: 0 8px 28px rgba(0,0,0,0.32);
+        }
+      }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      html { scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+      }
+      body {
+        margin: 0;
+        font-family: var(--font-sans);
+        background: var(--bg);
+        color: var(--text);
+        letter-spacing: -0.011em;
+        -webkit-font-smoothing: antialiased;
+        font-size: 15.5px;
+        line-height: 1.55;
+      }
+      h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.02em; }
+      a { color: var(--accent-2); }
+      img { display: block; max-width: 100%; }
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]), textarea { min-height: 2.25rem; }
+
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+      @media (min-width: 720px) { .wrap { padding: 0 32px; } }
+
+      /* ---- Top bar ---- */
+      .topbar {
+        position: sticky; top: 0; z-index: 20;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar-in { display: flex; align-items: center; gap: 10px; min-height: 60px; }
+      .brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--text); margin-right: auto; }
+      .brand .name { font-family: var(--font-display); font-weight: 800; font-size: 19px; letter-spacing: -0.02em; }
+      .brand .name em { font-style: normal; color: var(--accent-2); }
+      .brand .tag { display: none; font-size: 12.5px; font-weight: 600; color: var(--dim); }
+      @media (min-width: 720px) { .brand .tag { display: inline; } }
+      .nav { display: flex; align-items: center; gap: 2px; }
+      .nav a.link {
+        display: none; align-items: center; min-height: 40px; padding: 0 9px;
+        color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 999px;
+      }
+      .nav a.link:hover { background: var(--surface-alt); }
+      @media (min-width: 720px) { .nav a.link { display: inline-flex; } }
+      /* Q&A link stays visible on mobile too */
+      .nav a.link.link-qa { display: inline-flex; }
+      @media (max-width: 719px) {
+        .nav a.link.link-qa { padding: 0 8px; font-size: 13.5px; }
+      }
+
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent;
+        font-family: var(--font-display); font-size: 14.5px; font-weight: 700;
+        text-decoration: none; cursor: pointer; white-space: nowrap;
+      }
+      .btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 8px 20px var(--accent-glow); }
+      .btn-primary:hover { background: var(--accent-2); }
+      .btn-ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
+      .btn-ghost:hover { background: var(--surface-alt); }
+      .btn-sm { min-height: 40px; padding: 0 16px; font-size: 13.5px; }
+
+      /* ---- Hero ---- */
+      .hero { padding: 44px 0 8px; }
+      @media (min-width: 900px) { .hero { padding: 64px 0 16px; } }
+      .eyebrow { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2); margin: 0; }
+      .hero h1 { font-size: 38px; line-height: 1.04; font-weight: 800; margin: 14px 0 0; max-width: 14ch; }
+      @media (min-width: 900px) { .hero h1 { font-size: 52px; } }
+      .hero .lede { margin: 16px 0 0; max-width: 56ch; color: var(--dim); font-size: 16.5px; line-height: 1.6; }
+      .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+      .hero-grid { display: grid; gap: 28px; }
+      @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr; align-items: center; gap: 44px; } }
+      .hero-photo { border-radius: 28px; overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+      .hero-photo img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 3 / 2; }
+      @media (min-width: 900px) { .hero-photo img { aspect-ratio: 3 / 2; } }
+
+      .stats {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        margin-top: 36px; padding: 18px 0;
+        background: var(--surface); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow-sm);
+      }
+      .stats > div { text-align: center; padding: 0 8px; }
+      .stats > div + div { border-left: 1px solid var(--border); }
+      .stats .big { font-family: var(--font-display); font-size: 21px; font-weight: 800; line-height: 1.1; }
+      .stats .cap { margin-top: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); }
+
+      /* ---- Sections ---- */
+      section.block { padding: 52px 0 8px; scroll-margin-top: 76px; }
+      .sec-head h2 { font-size: 28px; font-weight: 800; line-height: 1.1; margin: 10px 0 0; }
+      @media (min-width: 900px) { .sec-head h2 { font-size: 34px; } }
+      .sec-head p.sub { margin: 10px 0 0; color: var(--dim); max-width: 60ch; }
+      .cred-line { display: flex; align-items: center; gap: 10px; margin: 14px 0 0; font-family: var(--font-display); font-size: 14.5px; font-weight: 700; color: var(--accent); }
+      .cred-line::before { content: "✓"; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; }
+
+      .cards { display: grid; gap: 12px; margin-top: 22px; }
+      @media (min-width: 640px) { .cards { grid-template-columns: 1fr 1fr; } }
+      @media (min-width: 980px) { .cards-4 { grid-template-columns: repeat(4, 1fr); } }
+      @media (min-width: 640px) and (max-width: 979px) { .cards-5 .card:last-child { grid-column: 1 / -1; } }
+      @media (min-width: 980px) { .cards-5 { grid-template-columns: repeat(5, 1fr); } }
+      .card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 22px;
+        padding: 20px; box-shadow: var(--shadow-sm);
+      }
+      .card .num {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 38px; height: 38px; border-radius: 50%;
+        background: var(--accent-soft); color: var(--accent-2);
+        font-family: var(--font-display); font-size: 13.5px; font-weight: 800;
+      }
+      .card h3 { font-size: 16.5px; font-weight: 700; margin: 12px 0 0; line-height: 1.25; }
+      .card p { margin: 5px 0 0; font-size: 13.5px; color: var(--dim); line-height: 1.5; }
+
+      .steps { display: grid; gap: 20px; margin-top: 26px; }
+      @media (min-width: 720px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+      .step .n {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px; border-radius: 50%;
+        background: var(--accent); color: #fff;
+        font-family: var(--font-display); font-size: 14px; font-weight: 800;
+      }
+      .step h3 { font-size: 15.5px; font-weight: 700; margin: 10px 0 0; }
+      .step p { margin: 3px 0 0; font-size: 13.5px; color: var(--dim); }
+
+      .callout {
+        display: flex; gap: 16px; align-items: flex-start;
+        margin-top: 26px; padding: 22px;
+        background: var(--accent); color: var(--accent-ink);
+        border-radius: 24px; box-shadow: 0 12px 28px var(--accent-glow);
+      }
+      .callout .arrow {
+        flex: none; display: flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.15);
+        font-size: 20px; font-weight: 700;
+      }
+      .callout h3 { margin: 0; font-size: 17.5px; font-weight: 800; }
+      .callout p { margin: 4px 0 0; font-size: 14px; line-height: 1.55; opacity: 0.92; }
+
+      .split { display: grid; gap: 24px; margin-top: 22px; }
+      @media (min-width: 900px) { .split { grid-template-columns: 0.92fr 1.08fr; align-items: start; } }
+      .photo-card { border-radius: 24px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+      .photo-card img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
+      .photo-note { margin-top: 14px; padding: 16px 18px; background: var(--surface-alt); border-radius: 18px; font-size: 14px; color: var(--dim); line-height: 1.55; }
+      .photo-note strong { color: var(--text); font-family: var(--font-display); }
+
+      .list-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow-sm); overflow: hidden; }
+      .list-card ul { list-style: none; margin: 0; padding: 0; }
+      .list-card li { display: flex; gap: 12px; padding: 13px 20px; font-size: 14.5px; line-height: 1.5; }
+      .list-card li + li { border-top: 1px solid var(--border); }
+      .check {
+        flex: none; display: flex; align-items: center; justify-content: center;
+        width: 20px; height: 20px; margin-top: 1px; border-radius: 50%;
+        background: var(--accent); color: #fff; font-size: 11px; font-weight: 700;
+      }
+      .list-card li.hl { background: var(--accent-soft); }
+
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+      .chip {
+        padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+        background: var(--surface); border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      }
+
+      /* ---- Q&A ---- */
+      .qa-group { margin-top: 26px; }
+      .qa-group > h3 { font-size: 20px; font-weight: 800; margin: 0 0 12px; }
+      .qa-list { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-sm); overflow: hidden; }
+      .qa-item + .qa-item { border-top: 1px solid var(--border); }
+      .qa-item summary {
+        display: flex; align-items: center; gap: 10px; padding: 15px 20px;
+        font-family: var(--font-display); font-size: 15px; font-weight: 700; line-height: 1.35;
+        cursor: pointer; list-style: none;
+      }
+      .qa-item summary::-webkit-details-marker { display: none; }
+      .qa-item summary::after { content: "+"; flex: none; margin-left: auto; color: var(--accent-2); font-size: 18px; font-weight: 800; line-height: 1; }
+      .qa-item[open ] summary::after { content: "–"; }
+      .qa-item p { margin: 0; padding: 0 20px 16px; font-size: 14.5px; color: var(--dim); line-height: 1.6; }
+      .qa-more { margin: 18px 0 0; font-size: 14.5px; color: var(--dim); }
+      .request-tab-head { display: block; list-style: none; cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-sm); padding: 20px; position: relative; }
+      .request-tab-head::-webkit-details-marker { display: none; }
+      .request-tab-head h2 { margin: 10px 0 0; font-size: 28px; font-weight: 800; line-height: 1.1; }
+      @media (min-width: 900px) { .request-tab-head h2 { font-size: 34px; } }
+      .request-tab-head::after { content: "+"; position: absolute; top: 20px; right: 20px; color: var(--accent-2); font-size: 22px; font-weight: 800; line-height: 1; }
+      .request-tab[open ] .request-tab-head::after { content: "–"; }
+      .request-tab > p.sub { margin: 16px 0 0; padding: 0 4px; color: var(--dim); max-width: 60ch; }
+
+      /* ---- Terms ---- */
+      .terms li { align-items: flex-start; }
+      .term-num {
+        flex: none; display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px; border-radius: 50%;
+        background: var(--accent); color: #fff;
+        font-family: var(--font-display); font-size: 13px; font-weight: 800;
+      }
+      .terms h3 { margin: 2px 0 0; font-size: 15.5px; font-weight: 700; }
+      .terms p { margin: 3px 0 0; font-size: 14px; color: var(--dim); line-height: 1.55; }
+      .terms .signoff { background: var(--accent-soft); font-size: 14px; line-height: 1.55; }
+      .terms .signoff strong { font-family: var(--font-display); }
+
+      /* ---- Request form ---- */
+      .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow-sm); padding: 22px; margin-top: 22px; }
+      @media (min-width: 720px) { .form-card { padding: 28px; } }
+      .grid2 { display: grid; gap: 14px; }
+      @media (min-width: 640px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+      label.f { display: block; font-size: 13px; font-weight: 600; margin: 0 0 6px; }
+      .field { margin-bottom: 14px; }
+      input[type="text"], input[type="tel"], input[type="email"], input[type="date"], input[type="number"], textarea {
+        width: 100%; padding: 10px 14px; border-radius: 12px;
+        border: 1px solid var(--border); background: var(--bg); color: var(--text);
+        font: inherit; font-size: 14.5px;
+      }
+      input:focus, textarea:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+      textarea { resize: vertical; min-height: 76px; }
+      input[type="file"] {
+        width: 100%; padding: 10px 14px; border-radius: 12px;
+        border: 1px solid var(--border); background: var(--bg); color: var(--text);
+        font: inherit; font-size: 14.5px;
+      }
+      input[type="file"]:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+      .file-name { margin: 8px 0 0; font-size: 13.5px; font-weight: 600; color: var(--accent-2); }
+      .file-name:empty { display: none; }
+      .file-hint { margin: 6px 0 0; font-size: 12.5px; color: var(--dim); }
+      .pick-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .pick {
+        display: inline-flex; align-items: center; min-height: 40px; padding: 6px 14px;
+        border-radius: 999px; border: 1px solid var(--border); background: var(--bg);
+        font-size: 13.5px; font-weight: 600; color: var(--text); cursor: pointer;
+      }
+      .pick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+      .pos-grid { display: grid; gap: 8px; }
+      @media (min-width: 640px) { .pos-grid { grid-template-columns: 1fr 1fr; } }
+      .pos-option {
+        display: flex; align-items: center; gap: 10px;
+        min-height: 48px; padding: 10px 14px;
+        border-radius: 14px; border: 1px solid var(--border); background: var(--bg);
+        font-size: 14.5px; font-weight: 600; color: var(--text); cursor: pointer;
+      }
+      .pos-option:hover { background: var(--surface-alt); }
+      .pos-option:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); }
+      .pos-option input { width: 20px; height: 20px; flex: none; margin: 0; accent-color: var(--accent); cursor: pointer; }
+      .ack {
+        margin: 16px 0; padding: 14px 16px; border-radius: 14px;
+        background: var(--accent-soft); font-size: 13.5px; line-height: 1.55; color: var(--text);
+      }
+      .ack label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; min-height: 36px; }
+      .ack input { width: 20px; height: 20px; margin-top: 1px; flex: none; accent-color: var(--accent); }
+      .agreement {
+        margin: 20px 0 16px; padding: 20px;
+        border: 1px solid var(--border); border-radius: 18px; background: var(--bg);
+      }
+      .agreement h3 { margin: 0; font-size: 17px; font-weight: 800; }
+      .agreement .agreement-intro { margin: 6px 0 0; font-size: 13.5px; color: var(--dim); line-height: 1.55; }
+      .agreement-body { margin-top: 14px; font-size: 13.5px; line-height: 1.6; color: var(--text); }
+      .agreement-body h4 { margin: 16px 0 6px; font-family: var(--font-display); font-size: 14.5px; font-weight: 800; }
+      .agreement-body h4:first-child { margin-top: 0; }
+      .agreement-body ol { margin: 0; padding-left: 20px; }
+      .agreement-body li + li { margin-top: 8px; }
+      .agreement-body li strong { font-family: var(--font-display); }
+      .agreement-body p { margin: 10px 0 0; }
+      .sign-field { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+      .sign-field input[type="text"] { background: var(--surface); font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+      .agreement .ack { margin: 14px 0 0; }
+      .final-payment-note { margin-top: 18px; padding: 16px 18px; border-radius: 14px; background: var(--accent-soft); }
+      .final-payment-note h3 { margin: 0; font-size: 15.5px; font-weight: 700; }
+      .final-payment-note p { margin: 3px 0 0; font-size: 14px; color: var(--dim); line-height: 1.55; }
+      .summary-out {
+        display: none; margin-top: 18px; padding: 16px; border-radius: 14px;
+        background: var(--bg); border: 1px dashed var(--border);
+        font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+      }
+      .summary-out.show { display: block; }
+      .form-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      .copied { font-size: 13.5px; font-weight: 600; color: var(--accent-2); }
+      .btn[disabled] { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+      /* ---- Urgent intro ---- */
+      .urgent { padding: 28px 0 4px; }
+      @media (min-width: 900px) { .urgent { padding: 36px 0 8px; } }
+      .urgent-card {
+        background: var(--accent); color: var(--accent-ink);
+        border-radius: 24px; padding: 26px 24px;
+        box-shadow: 0 12px 28px var(--accent-glow);
+      }
+      @media (min-width: 720px) { .urgent-card { padding: 32px 36px; } }
+      .urgent-card .eyebrow { color: rgba(255,255,255,0.82); }
+      .urgent-card h2 { font-size: 28px; line-height: 1.12; font-weight: 800; margin: 10px 0 0; max-width: 22ch; }
+      @media (min-width: 900px) { .urgent-card h2 { font-size: 34px; } }
+      .urgent-card .questions { margin: 14px 0 0; font-family: var(--font-display); font-size: 17px; font-weight: 700; line-height: 1.45; }
+      .urgent-card p.body { margin: 12px 0 0; font-size: 15.5px; line-height: 1.6; opacity: 0.94; max-width: 68ch; }
+      .urgent-card .cta-row { margin-top: 20px; }
+      .urgent-card .btn-light { background: #fff; color: var(--accent); box-shadow: none; }
+      .urgent-card .btn-light:hover { background: var(--accent-soft); }
+
+      .schedule-note {
+        margin-top: 22px; padding: 20px 22px;
+        background: var(--surface); border: 1px solid var(--border); border-radius: 22px;
+        box-shadow: var(--shadow-sm); font-size: 14.5px; line-height: 1.6; color: var(--dim);
+      }
+      .schedule-note strong { color: var(--text); font-family: var(--font-display); }
+      .schedule-note p { margin: 0; }
+      .schedule-note p + p { margin-top: 10px; }
+
+      footer { margin-top: 64px; border-top: 1px solid var(--border); padding: 28px 0 40px; }
+      footer .frow { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; justify-content: space-between; }
+      footer p { margin: 0; font-size: 13px; color: var(--dim); }
+      footer .fname { font-family: var(--font-display); font-weight: 800; font-size: 15px; color: var(--text); } footer a { color: var(--text); }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap topbar-in">
+        <a class="brand" href="#top">
+          <span class="name">Embryo<em>OnCall</em></span>
+          <span class="tag">Per-diem IVF lab staffing</span>
+        </a>
+        <nav class="nav" aria-label="Page sections">
+          <a class="link" href="#offer">What we offer</a>
+          <a class="link" href="#terms">Lab terms</a>
+          <a class="link link-qa" href="#qa">Q&amp;A</a>
+          <a class="link" href="#contact">Contact</a>
+          <a class="link" href="https://embryooncall.com/travelers.html">Join the traveling roster</a>
+          <a class="link" href="https://embryooncall.com/desk.html">Desk</a>
+          <a class="btn btn-primary btn-sm" href="#request">Request coverage</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ===================== URGENT COVERAGE — FIRST ===================== -->
+      <div class="wrap urgent">
+        <div class="urgent-card">
+          <p class="eyebrow">Urgent coverage, on call for your lab</p>
+          <h2>Your embryologist is out. Your batch can&rsquo;t wait.</h2>
+          <p class="questions">Your embryologist sick? On PTO? On maternity leave? Facing an urgent gap with a batch already underway?</p>
+          <p class="body">
+            We are here for you. EmbryoOnCall has embryologists on call for
+            your lab&rsquo;s needs &mdash; experienced professionals who can
+            step in and perform all IVF-related procedures from Day&nbsp;1
+            through to the completion of the batch, so your patients&rsquo;
+            cycles stay on track and your remaining team isn&rsquo;t
+            stretched thin covering alone.
+          </p>
+          <p class="body">
+            Don&rsquo;t cancel cycles or turn patients away because of a
+            staffing gap. One call brings you qualified coverage on fair,
+            straightforward terms, arranged around exactly what your lab needs.
+          </p>
+          <div class="cta-row">
+            <a class="btn btn-light" href="#request">Request coverage now</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== INTRO ===================== -->
+      <div class="wrap hero">
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow">EmbryoOnCall • Per-diem IVF lab staffing</p>
+            <h1>Experienced IVF staff, on call for your lab.</h1>
+            <p class="lede">
+              EmbryoOnCall places vetted per-diem professionals into fertility
+              and IVF labs that need coverage — for a day, a week, or a busy
+              cycle. Labs tell us the dates and skills they need, we match
+              a qualified professional, and our staff step in ready to work from day one.
+            </p>
+            <div class="hero-cta">
+              <a class="btn btn-primary" href="#request">Request coverage</a>
+              <a class="btn btn-ghost" href="https://embryooncall.com/travelers.html">Join the traveling roster</a> <a class="btn btn-ghost btn-sm" href="https://embryooncall.com/desk.html">Desk</a>
+            </div>
+          </div>
+          <div class="hero-photo">
+            <img src="images/hero-microscope.jpg" alt="Embryologist looking through a microscope in the lab" width="2121" height="1414" />
+          </div>
+        </div>
+
+        <div class="stats" role="list" aria-label="At a glance">
+          <div role="listitem">
+            <div class="big">5+ yrs</div>
+            <div class="cap">Experience, every placement</div>
+          </div>
+          <div role="listitem">
+            <div class="big">5 roles</div>
+            <div class="cap">Covered</div>
+          </div>
+          <div role="listitem">
+            <div class="big">Nationwide</div>
+            <div class="cap">Coverage across the U.S.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== WHAT WE OFFER ===================== -->
+      <section class="block" id="offer">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="eyebrow">What we offer</p>
+            <h2>Coverage for the whole lab team</h2>
+            <p class="sub">
+              Five specialties, one call. Every professional we place has 5+ years
+              of experience and is trained to perform all IVF-related techniques,
+              skills, and procedures, so they fit your workflow instead of
+              slowing it down.
+            </p>
+            <p class="cred-line">We are all actively licensed, certified by AAB or various boards.</p>
+          </div>
+
+          <div class="cards cards-5">
+            <div class="card">
+              <span class="num">01</span>
+              <h3>Senior Embryologist</h3>
+              <p>IVF lab leadership &amp; full ART bench</p>
+            </div>
+            <div class="card">
+              <span class="num">02</span>
+              <h3>Andrologist-CLS</h3>
+              <p>Andrology &amp; clinical lab science</p>
+            </div>
+            <div class="card">
+              <span class="num">03</span>
+              <h3>MA (Medical Assistant)</h3>
+              <p>Clinical support &amp; patient flow</p>
+            </div>
+            <div class="card">
+              <span class="num">04</span>
+              <h3>Sonographer</h3>
+              <p>Ultrasound &amp; monitoring</p>
+            </div>
+            <div class="card">
+              <span class="num">05</span>
+              <h3>Nurse</h3>
+              <p>Cycle coordination &amp; patient care</p>
+            </div>
+          </div>
+
+          <div class="steps">
+            <div class="step">
+              <span class="n">1</span>
+              <h3>Tell us dates &amp; skills</h3>
+              <p>Send a coverage request with the dates and skills you need.</p>
+            </div>
+            <div class="step">
+              <span class="n">2</span>
+              <h3>We match your coverage</h3>
+              <p>Qualified, available, willing to travel.</p>
+            </div>
+            <div class="step">
+              <span class="n">3</span>
+              <h3>Staff step in</h3>
+              <p>Ready for your lab's workflow, day one.</p>
+            </div>
+          </div>
+
+          <div class="schedule-note">
+            <p>
+              <strong>You set the schedule.</strong>
+              Book coverage for a minimum of one day, up to however many days
+              you need. We can cover a full batch &mdash; from Day&nbsp;1
+              through the end of the final day, including biopsy and
+              vitrification.
+            </p>
+            <p>
+              Need us ready before the batch starts? We can begin a day before
+              Day&nbsp;1 to prep the dishes, media, and paper documents, so
+              everything is set when the batch begins.
+            </p>
+            <p>
+              <strong>Get the quote, and when you agree, we will send your professional.</strong>
+              It&rsquo;s that simple &mdash; request coverage, review your
+              quote, agree, and your professional is on the way.
+            </p>
+          </div>
+
+          <p style="margin: 26px 0 0; color: var(--dim); max-width: 68ch;">
+            <strong class="display" style="color: var(--text);">Full ART bench:</strong>
+            oocyte retrieval, IVF, ICSI, embryo biopsy, vitrification &amp;
+            warming, embryo transfer, and more.
+            <strong class="display" style="color: var(--text);">Upon request we can send a resume</strong>
+            — with degrees, transcripts, and references — for any clinician
+            before placement.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===================== LAB TERMS ===================== -->
+  <section class="block" id="terms">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Required for every placement</p>
+        <h2>Lab agreement &amp; terms</h2>
+        <p class="sub">The key points, in brief.</p>
+      </div>
+      <div class="list-card terms" style="margin-top: 22px;">
+        <ul>
+          <li>
+            <span class="term-num">1</span>
+            <div>
+              <h3>50% deposit up front</h3>
+              <p>50% deposit up front before placement or contact details are released.</p>
+            </div>
+          </li>
+          <li>
+            <span class="term-num">2</span>
+            <div>
+              <h3>Contact through EmbryoOnCall only</h3>
+              <p>Contact through EmbryoOnCall only — no going direct.</p>
+            </div>
+          </li>
+          <li>
+            <span class="term-num">3</span>
+            <div>
+              <h3>12-month non-circumvention</h3>
+              <p>12-month non-circumvention; $5,000 / 20% direct-hire fee if a lab goes direct.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <p style="margin: 18px 0 0; color: var(--dim); max-width: 68ch;">The full agreement is shown in the request form below — you read and sign it before submitting.</p>
+    </div>
+  </section>
+
+      <!-- ===================== Q&A ===================== -->
+      <section class="block" id="qa">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="eyebrow">Questions, answered</p>
+            <h2>Q&amp;A</h2>
+            <p class="sub">
+              Plain answers for labs. If your question is
+              not here, reach out — we will answer it.
+            </p>
+          </div>
+
+          <div class="qa-group">
+            <h3>For labs</h3>
+            <div class="qa-list">
+              <details class="qa-item">
+                <summary>What does EmbryoOnCall do?</summary>
+                <p>We place trained per-diem IVF professionals into fertility and IVF labs that need cover — for a day, a week, or a full cycle. You tell us the dates and skills you need, we match someone qualified, and they step in ready to work from day one.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What roles can you cover?</summary>
+                <p>Five roles: Senior Embryologist, Andrologist-CLS, MA (Medical Assistant), Sonographer, and Nurse. Everyone we place has 5+ years of experience.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How do I request cover?</summary>
+                <p>Fill in the request form on this page with your lab, the dates, the role, and the skills you need. We match qualified staff, confirm they are available, and can send you a resume for anyone we propose before you agree.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How does payment work?</summary>
+                <p>A 50% deposit is due before we place anyone or share their contact details. The final invoice is sent the day the traveler returns home, and it is due within 24 hours of receipt.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What is the commission?</summary>
+                <p>The commission is charged to the lab: 10% for a standard assignment, 7% for a multi-day assignment. It is never taken from the traveler&rsquo;s pay.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How does travel work?</summary>
+                <p>Travel is charged at exact cost — what it actually costs, nothing added. Travel expenses are capped: flights are economy class, capped at the market rate plus 25%; hotels are capped at the fair market rate plus 25%; meals are capped at $75 per day; ground transport is capped at $50 per day. Receipts are required for everything.</p>
+              </details>
+              <details class="qa-item">
+                <summary>What is the non-circumvention rule?</summary>
+                <p>For 12 months after we introduce a professional to your lab, all bookings for that person go through EmbryoOnCall — including re-hires. If a lab hires or engages them directly in that time, a direct-hire fee applies: $5,000, or 20% of what the lab pays them directly in those 12 months, whichever is higher. A lab that goes direct also loses access to future placements.</p>
+              </details>
+              <details class="qa-item">
+                <summary>How fast can cover start?</summary>
+                <p>As soon as we have matched someone, they have accepted, and the deposit is paid. Send your request with as much notice as you can — the more notice, the more choice you will have.</p>
+              </details>
+            </div>
+          </div>
+
+          <p class="qa-more">Still have a question? <a href="#contact">Contact EmbryoOnCall</a> — we will get back to you.</p>
+        </div>
+      </section>
+
+      <!-- ===================== REQUEST COVERAGE ===================== -->
+      <section class="block" id="request">
+        <div class="wrap">
+          <details class="request-tab" id="requestTab">
+            <summary class="request-tab-head">
+              <p class="eyebrow">Request coverage</p>
+              <h2>Tell us what your lab needs</h2>
+            </summary>
+            <p class="sub">
+              Fill this in and submit — your request is sent to EmbryoOnCall
+              automatically. We match qualified staff and confirm
+              availability, and we can send resumes for the clinicians we
+              propose. You can also copy the summary it builds as a backup.
+              As the final step — tied to your 50% deposit — you will read
+              and sign the consent &amp; non-circumvention agreement below
+              before the request goes through.
+            </p>
+
+            <form class="form-card" id="reqForm" novalidate>
+            <div class="grid2">
+              <div class="field">
+                <label class="f" for="labName">Lab / clinic name</label>
+                <input type="text" id="labName" autocomplete="organization" placeholder="Your lab's name" />
+              </div>
+              <div class="field">
+                <label class="f" for="labCity">City &amp; state</label>
+                <input type="text" id="labCity" placeholder="City, ST" />
+              </div>
+              <div class="field">
+                <label class="f" for="contactName">Your name</label>
+                <input type="text" id="contactName" autocomplete="name" placeholder="Contact person" />
+              </div>
+              <div class="field">
+                <label class="f" for="contactPhone">Contact phone</label>
+                <input type="tel" id="contactPhone" autocomplete="tel" placeholder="(555) 555-5555" />
+              </div>
+              <div class="field">
+                <label class="f" for="billingEmail">Billing email</label>
+                <input type="email" id="billingEmail" autocomplete="email" placeholder="Email for invoices" required />
+              </div>
+              <div class="field">
+                <label class="f" for="startDate">Coverage starts</label>
+                <input type="date" id="startDate" />
+              </div>
+              <div class="field">
+                <label class="f" for="endDate">Coverage ends</label>
+                <input type="date" id="endDate" />
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="f" id="positionLabel">Position needed — pick one or more <span style="color: var(--dim); font-weight: 500;">(required)</span></span>
+              <div class="pos-grid" role="group" aria-labelledby="positionLabel">
+                <label class="pos-option" for="posSenior">
+                  <input type="checkbox" id="posSenior" class="pos-check" value="Senior Embryologist" />
+                  <span>Senior Embryologist</span>
+                </label>
+                <label class="pos-option" for="posAndrologist">
+                  <input type="checkbox" id="posAndrologist" class="pos-check" value="Andrologist-CLS" />
+                  <span>Andrologist-CLS</span>
+                </label>
+                <label class="pos-option" for="posMA">
+                  <input type="checkbox" id="posMA" class="pos-check" value="MA (Medical Assistant)" />
+                  <span>MA (Medical Assistant)</span>
+                </label>
+                <label class="pos-option" for="posSonographer">
+                  <input type="checkbox" id="posSonographer" class="pos-check" value="Sonographer" />
+                  <span>Sonographer</span>
+                </label>
+                <label class="pos-option" for="posNurse">
+                  <input type="checkbox" id="posNurse" class="pos-check" value="Nurse" />
+                  <span>Nurse</span>
+                </label>
+              </div>
+              <p class="file-hint">Select at least one position.</p>
+            </div>
+
+            <div class="field">
+              <span class="f" id="skillsLabel">Skills needed — pick all that apply</span>
+              <div class="pick-chips" role="group" aria-labelledby="skillsLabel" id="skillChips">
+                <button type="button" class="pick" aria-pressed="false">Oocyte retrieval</button>
+                <button type="button" class="pick" aria-pressed="false">Sperm preparation for insemination</button>
+                <button type="button" class="pick" aria-pressed="false">In-vitro fertilization (IVF)</button>
+                <button type="button" class="pick" aria-pressed="false">Fertilization check</button>
+                <button type="button" class="pick" aria-pressed="false">Embryo evaluation</button>
+                <button type="button" class="pick" aria-pressed="false">Selection of embryos for transfer and vitrification</button>
+                <button type="button" class="pick" aria-pressed="false">Embryo vitrification</button>
+                <button type="button" class="pick" aria-pressed="false">Embryo thawing</button>
+                <button type="button" class="pick" aria-pressed="false">Embryo transfer</button>
+                <button type="button" class="pick" aria-pressed="false">Surgical sperm retrieval and processing</button>
+                <button type="button" class="pick" aria-pressed="false">Cell-to-tube transfer of embryo biopsy material</button>
+                <button type="button" class="pick" aria-pressed="false">Micromanipulation</button>
+                <button type="button" class="pick" aria-pressed="false">ICSI</button>
+                <button type="button" class="pick" aria-pressed="false">Assisted hatching</button>
+                <button type="button" class="pick" aria-pressed="false">Embryo biopsy</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="f" for="notes">Anything else we should know? <span style="color: var(--dim); font-weight: 500;">(optional)</span></label>
+              <textarea id="notes" placeholder="Cycle volume, EMR you use, travel/lodging notes…"></textarea>
+            </div>
+
+            <div class="agreement" id="agreementSection">
+              <h3>Consent &amp; Non-Circumvention Agreement</h3>
+              <p class="agreement-intro">
+                This agreement is shown at the request &amp; deposit step.
+                Please read it in full and sign below before submitting —
+                your request does not go through without a signature.
+                Placement does not proceed and the embryologist&rsquo;s
+                contact details are not released until this agreement is
+                signed and the 50% deposit is paid, with the balance due
+                before the assignment starts. Travel is reimbursed at
+                exact cost, within the capped travel expenses listed below.
+              </p>
+
+              <div class="agreement-body">
+                <h4>Confidentiality &amp; consent</h4>
+                <ol>
+                  <li><strong>Signature required before placement.</strong> The lab must sign this agreement before any placement begins, before the embryologist&rsquo;s contact details are released, and before the first day of coverage.</li>
+                  <li><strong>Confidential information.</strong> Embryologist details and contact information shared for a placement are confidential and may not be shared or used outside the placement.</li>
+                  <li><strong>Contact through EmbryoOnCall only.</strong> Labs may not contact the embryologist directly. All communication, scheduling, extensions, and future bookings must go through EmbryoOnCall.</li>
+                  <li><strong>Consent to proceed.</strong> By signing, the lab consents to EmbryoOnCall matching staff to this request, sharing the request details with the clinicians proposed for the placement, and invoicing as described in the <a href="#terms">lab agreement &amp; terms</a> — 50% deposit up front, final invoice for the remaining balance, and travel at exact cost within the capped travel expenses in this agreement.</li>
+                </ol>
+
+                <h4>Capped travel expenses</h4>
+                <p>Travelers book all travel through Navan, inside these caps. The lab is billed at exact cost — what it actually costs, nothing added — and receipts are required for everything.</p>
+                <ol>
+                  <li><strong>Flights.</strong> Economy class only, capped at the market rate plus 25%.</li>
+                  <li><strong>Hotels.</strong> Capped at the fair market rate plus 25%.</li>
+                  <li><strong>Meals.</strong> Capped at $75 per day.</li>
+                  <li><strong>Ground transport.</strong> Capped at $50 per day.</li>
+                </ol>
+
+                <h4>Non-circumvention</h4>
+                <p>Every booking for an embryologist we introduce goes through EmbryoOnCall — including re-hires. No private contact, no going direct.</p>
+                <ol>
+                  <li><strong>12 months — all bookings go through EmbryoOnCall.</strong> For 12 months after EmbryoOnCall introduces an embryologist to a lab, the lab may not hire, re-hire, or privately contact that embryologist directly. All bookings — including re-hires, extensions, and future assignments — go through EmbryoOnCall.</li>
+                  <li><strong>Direct-hire fee if the lab goes direct.</strong> If the lab hires, re-hires, or engages the embryologist directly within those 12 months, the lab owes EmbryoOnCall a direct-hire fee of $5,000, or 20% of whatever the lab pays the embryologist directly during those 12 months — whichever is higher.</li>
+                  <li><strong>Loss of access.</strong> A lab that circumvents EmbryoOnCall loses access to EmbryoOnCall placements — no further placements or coverage.</li>
+                  <li><strong>The embryologist agrees to the same.</strong> Embryologists placed by EmbryoOnCall agree to the same rule on their side: they may not accept direct work from a lab EmbryoOnCall introduced them to. All such work is booked through EmbryoOnCall.</li>
+                </ol>
+              </div>
+
+              <div class="sign-field">
+                <div class="field" style="margin-bottom: 0;">
+                  <label class="f" for="signName">Signature — type your full name <span style="color: var(--dim); font-weight: 500;">(required)</span></label>
+                  <input type="text" id="signName" autocomplete="name" placeholder="Type your full name to sign" />
+                  <p class="file-hint">Typing your full name here is your electronic signature on the agreement above.</p>
+                </div>
+              </div>
+
+              <div class="ack">
+                <label for="signAgreeBox">
+                  <input type="checkbox" id="signAgreeBox" />
+                  <span>
+                    I have read the full Consent &amp; Non-Circumvention
+                    Agreement above and I agree to it on behalf of the lab,
+                    including the confidentiality terms and the 12-month
+                    non-circumvention terms with the $5,000 / 20%
+                    direct-hire fee. I understand the 50% deposit is due
+                    up front before staff are placed and before contact
+                    details are released.
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="buildBtn" disabled>Sign &amp; submit coverage request</button>
+              <button type="button" class="btn btn-ghost" id="copyBtn" disabled>Copy summary</button>
+              <span class="copied" id="copiedMsg" role="status" aria-live="polite"></span>
+            </div>
+
+            <div class="summary-out" id="summaryOut" aria-label="Your request summary"></div>
+          </form>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================== CONTACT ===================== -->
+      <section class="block" id="contact">
+        <div class="wrap">
+          <div class="sec-head">
+            <p class="eyebrow">Contact</p>
+            <h2>Reach EmbryoOnCall directly</h2>
+            <p class="sub">
+              Questions about coverage or an upcoming placement?
+              Email or call us — we&rsquo;ll get back to you.
+            </p>
+          </div>
+
+          <div class="cards">
+            <div class="card">
+              <h3 style="margin-top: 0;">Email us</h3>
+              <p style="margin-bottom: 14px;">For coverage requests, questions, and anything in between.</p>
+              <a class="btn btn-primary btn-sm" href="mailto:ken@embryooncall.com">ken@embryooncall.com</a>
+            </div>
+            <div class="card">
+              <h3 style="margin-top: 0;">Call us</h3>
+              <p style="margin-bottom: 14px;">Prefer to talk it through? Give us a call.</p>
+              <a class="btn btn-ghost btn-sm" href="tel:+14075924793">407-592-4793</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap frow">
+        <p>© 2026 EmbryoOnCall — Per-diem IVF lab staffing, nationwide.</p>
+        <p><a href="#request">Request coverage</a> · <a href="#qa">Q&A</a> · <a href="https://embryooncall.com/travelers.html">Join the traveling roster</a> · <a href="https://embryooncall.com/desk.html">Desk</a> · <a href="https://www.linkedin.com/company/embryooncall">LinkedIn</a> · <a href="mailto:Ken@embryooncall.com">Ken@embryooncall.com</a> · <a href="tel:+14075924793">407-592-4793</a></p>
+      </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      // Save coverage requests straight into the desk's Firestore so every
+      // request from this form shows up in the desk Requests list.
+      // Firestore rules allow anyone to CREATE a request (no sign-in);
+      // only the desk account can read, update or delete one.
+      // Fire-and-forget: if this fails, the FormSubmit email below is
+      // still the backup — the request is never lost.
+      var EOC_firebaseConfig = {
+        apiKey: "AIzaSyBcq6TAI3hM-IN1s5NBt_OHA4f5t_IfMAY",
+        authDomain: "embryooncall-travelers.firebaseapp.com",
+        projectId: "embryooncall-travelers",
+        storageBucket: "embryooncall-travelers.firebasestorage.app",
+        messagingSenderId: "628697252893",
+        appId: "1:628697252893:web:ee197cb07d66560274f2f4"
+      };
+      var EOC_db = null;
+      try {
+        if (typeof firebase !== "undefined") {
+          if (!firebase.apps.length) firebase.initializeApp(EOC_firebaseConfig);
+          EOC_db = firebase.firestore();
+        }
+      } catch (e) { EOC_db = null; }
+      window.EOC_saveRequest = function (doc) {
+        if (!EOC_db) return Promise.reject(new Error("firebase unavailable"));
+        doc.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        doc.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        return EOC_db.collection("requests").add(doc);
+      };
+    </script>
+
+    <script>
+      // Free form-to-email delivery via FormSubmit (no account / no paid plan).
+      // Submissions are emailed automatically to embryooncall@gmail.com.
+      // Note: FormSubmit sends a one-time activation email to that inbox on the
+      // very first submission — it must be confirmed once for delivery to begin.
+      // This AJAX helper serves the Coverage Request form.
+      window.EOC_sendToInbox = function (subject, fields, summaryText) {
+        var payload = {
+          _subject: subject,
+          _template: "table",
+          _captcha: "false",
+          message: summaryText
+        };
+        var keys = Object.keys(fields || {});
+        for (var i = 0; i < keys.length; i++) {
+          payload[keys[i]] = fields[keys[i]];
+        }
+        if (fields && fields["Email"] && fields["Email"] !== "—") {
+          payload._replyto = fields["Email"];
+        }
+        // 8s timeout so a hung email send can never block the desk save —
+        // the desk write is the source of truth, the email is only a copy.
+        var ctl = null;
+        try { ctl = new AbortController(); } catch (e) {}
+        var timer = null;
+        if (ctl) { timer = setTimeout(function () { try { ctl.abort(); } catch (e) {} }, 8000); }
+        return fetch("https://formsubmit.co/ajax/embryooncall@gmail.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payload),
+          signal: ctl ? ctl.signal : undefined
+        }).then(function (r) {
+          if (timer) clearTimeout(timer);
+          if (!r.ok) throw new Error("send failed");
+          return r.json().catch(function () { return {}; });
+        }).catch(function (err) {
+          if (timer) clearTimeout(timer);
+          throw err;
+        });
+      };
+    </script>
+
+    <script>
+      (function () {
+        var form = document.getElementById("reqForm");
+        var signName = document.getElementById("signName");
+        var signAgree = document.getElementById("signAgreeBox");
+        var buildBtn = document.getElementById("buildBtn");
+        var copyBtn = document.getElementById("copyBtn");
+        var out = document.getElementById("summaryOut");
+        var copiedMsg = document.getElementById("copiedMsg");
+        var chips = Array.prototype.slice.call(document.querySelectorAll("#skillChips .pick"));
+        var posChecks = Array.prototype.slice.call(document.querySelectorAll(".pos-check"));
+        var lastSummary = "";
+        var sending = false;
+
+        chips.forEach(function (chip) {
+          chip.addEventListener("click", function () {
+            var on = chip.getAttribute("aria-pressed") === "true";
+            chip.setAttribute("aria-pressed", on ? "false" : "true");
+          });
+        });
+
+        function getSelectedPositions() {
+          return posChecks
+            .filter(function (c) { return c.checked; })
+            .map(function (c) { return c.value; });
+        }
+
+        function updateBuildState() {
+          var signed = signName && signName.value.trim().length > 0;
+          var agreed = signAgree && signAgree.checked;
+          var hasPosition = getSelectedPositions().length > 0;
+          buildBtn.disabled = sending || !(signed && agreed && hasPosition);
+        }
+        if (signName) signName.addEventListener("input", updateBuildState);
+        if (signAgree) signAgree.addEventListener("change", updateBuildState);
+        posChecks.forEach(function (c) { c.addEventListener("change", updateBuildState); });
+        updateBuildState();
+
+        // Clear a stale validation message as soon as the lab fixes the field.
+        ["labName", "startDate", "billingEmail"].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener("input", function () { copiedMsg.textContent = ""; });
+          el.addEventListener("change", function () { copiedMsg.textContent = ""; });
+        });
+
+        function val(id) {
+          var el = document.getElementById(id);
+          return el && el.value ? el.value.trim() : "";
+        }
+        function fmtDate(v) {
+          if (!v) return "";
+          var parts = v.split("-");
+          if (parts.length !== 3) return v;
+          var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+          return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        }
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (sending) return;
+          copiedMsg.textContent = "";
+          var signer = val("signName");
+          if (!signer) {
+            copiedMsg.textContent = "Please sign the agreement — type your full name in the signature field.";
+            if (signName) signName.focus();
+            return;
+          }
+          if (!signAgree || !signAgree.checked) {
+            copiedMsg.textContent = "Please check the agreement box to agree to the Consent & Non-Circumvention Agreement.";
+            if (signAgree) signAgree.focus();
+            return;
+          }
+          var positions = getSelectedPositions();
+          if (!positions.length) {
+            copiedMsg.textContent = "Please select at least one position needed.";
+            if (posChecks.length) posChecks[0].focus();
+            return;
+          }
+          var skills = chips
+            .filter(function (c) { return c.getAttribute("aria-pressed") === "true"; })
+            .map(function (c) { return c.textContent.trim(); });
+          // Normalize to the desk's canonical skill / position values so the
+          // request matches and edits cleanly in the desk.
+          var deskSkills = ["oocyte retrieval", "sperm preparation for insemination", "in-vitro fertilization (IVF)", "fertilization check", "embryo evaluation", "selection of embryos for transfer and vitrification", "embryo vitrification", "embryo thawing", "embryo transfer", "surgical sperm retrieval and processing", "cell to tube transfer of embryo biopsy material", "micromanipulation", "ICSI", "assisted hatching", "embryo biopsy"];
+          // Hyphens/spaces differ between the form chips ("Cell-to-tube…")
+          // and the desk canonical list ("cell to tube…") — compare with
+          // both normalized so the skill actually matches in the desk.
+          var normSkill = function (s) { return String(s).toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim(); };
+          var skillsForDesk = skills.map(function (s) {
+            for (var i = 0; i < deskSkills.length; i++) {
+              if (normSkill(deskSkills[i]) === normSkill(s)) return deskSkills[i];
+            }
+            return s;
+          });
+          var deskPositions = positions.map(function (p) { return p === "MA (Medical Assistant)" ? "MA" : p; });
+          var startISO = val("startDate");
+          var endISO = val("endDate");
+          var reqDoc = {
+            labName: val("labName") || "—",
+            location: val("labCity") || "",
+            contactName: val("contactName") || "",
+            contactPhone: val("contactPhone") || "",
+            billingEmail: val("billingEmail"),
+            position: deskPositions.join(", "),
+            startDate: startISO || "",
+            endDate: endISO || startISO || "",
+            skillsNeeded: skillsForDesk,
+            notes: val("notes") || "",
+            signedBy: signer,
+            agreementSigned: true,
+            source: "website",
+            status: "new"
+          };
+          var saveToDesk = function () {
+            if (window.EOC_saveRequest) {
+              window.EOC_saveRequest(reqDoc).catch(function () {});
+            }
+          };
+          var billingEmail = val("billingEmail");
+          if (!billingEmail) {
+            copiedMsg.textContent = "Please add a billing email — that's where invoices will be sent.";
+            var billingEl = document.getElementById("billingEmail");
+            if (billingEl) billingEl.focus();
+            return;
+          }
+          if (!val("labName")) {
+            copiedMsg.textContent = "Please add your lab's name — we need it to match staff.";
+            var labEl = document.getElementById("labName");
+            if (labEl) labEl.focus();
+            return;
+          }
+          if (!val("startDate")) {
+            copiedMsg.textContent = "Please add the coverage start date — we can't match staff without dates.";
+            var startEl = document.getElementById("startDate");
+            if (startEl) startEl.focus();
+            return;
+          }
+          var start = fmtDate(val("startDate"));
+          var end = fmtDate(val("endDate"));
+          var dates = start && end ? start + " – " + end : (start || end || "To be discussed");
+          var lines = [
+            "COVERAGE REQUEST — EmbryoOnCall",
+            "Lab: " + (val("labName") || "—"),
+            "Location: " + (val("labCity") || "—"),
+            "Contact: " + (val("contactName") || "—") + (val("contactPhone") ? " • " + val("contactPhone") : ""),
+            "Billing email: " + billingEmail,
+            "Dates: " + dates,
+            "Position needed: " + positions.join(", "),
+            "Skills needed: " + (skills.length ? skills.join(", ") : "—")
+          ];
+          if (val("notes")) lines.push("Notes: " + val("notes"));
+          lines.push("Lab agreement & terms (incl. Travel & payment): read and acknowledged. 50% deposit paid before placement / contact release; final invoice sent on the day the traveler returns home, due within 24 hours of receipt. Travel reimbursed at exact cost.");
+          lines.push("");
+          lines.push("CONSENT & NON-CIRCUMVENTION AGREEMENT — SIGNED ON SITE");
+          lines.push("Signed by (typed signature): " + signer);
+          lines.push("Signed for lab: " + (val("labName") || "—"));
+          lines.push("Agreement checkbox: Checked — I have read the full Consent & Non-Circumvention Agreement shown on the request form and I agree to it on behalf of the lab.");
+          lines.push("Agreement agreed to: Confidentiality — embryologist details and contact information are confidential and may not be shared or used outside the placement; all communication, scheduling, extensions, and future bookings go through EmbryoOnCall only. Non-circumvention — for 12 months after EmbryoOnCall introduces an embryologist, the lab will not hire, re-hire, or privately contact that embryologist directly; all bookings, including re-hires and extensions, go through EmbryoOnCall; going direct owes a direct-hire fee of $5,000 or 20% of what the lab pays the embryologist directly in those 12 months, whichever is higher, plus loss of access to EmbryoOnCall placements. Consent — the lab consents to EmbryoOnCall matching staff to this request and invoicing 50% deposit up front, final invoice for the remaining balance, travel at exact cost.");
+          lastSummary = lines.join("\n");
+          out.textContent = lastSummary;
+          out.classList.add("show");
+          copyBtn.disabled = false;
+          copiedMsg.textContent = "Sending your request to EmbryoOnCall…";
+          sending = true;
+          buildBtn.disabled = true;
+          out.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          // Save to the desk FIRST — the desk write is the source of truth
+          // and must never wait on the email send.
+          saveToDesk();
+          if (window.EOC_sendToInbox) {
+            window.EOC_sendToInbox(
+              "New Coverage Request — " + (val("labName") || "Lab") + " (" + dates + ")",
+              {
+                "Form": "Coverage Request",
+                "Lab": val("labName") || "—",
+                "Location": val("labCity") || "—",
+                "Contact": val("contactName") || "—",
+                "Phone": val("contactPhone") || "—",
+                "Billing email": billingEmail,
+                "Dates": dates,
+                "Position needed": positions.join(", "),
+                "Skills needed": skills.length ? skills.join(", ") : "—",
+                "Notes": val("notes") || "—",
+                "Consent & Non-Circumvention Agreement": "Signed and agreed on site as part of this request (deposit step)",
+                "Signed by (typed signature)": signer,
+                "Signed for lab": val("labName") || "—",
+                "Agreement checkbox": "Checked — agreed to the full Consent & Non-Circumvention Agreement",
+                "Agreement agreed to": "Confidentiality: embryologist details/contact information are confidential, not to be shared or used outside the placement; contact through EmbryoOnCall only. Non-circumvention (12 months after introduction): no direct hire, re-hire, or private contact with the embryologist; all bookings incl. re-hires/extensions through EmbryoOnCall; going direct owes $5,000 or 20% of direct payments in those 12 months, whichever is higher, plus loss of access to EmbryoOnCall placements. Deposit: 50% up front before placement/contact release; travel at exact cost."
+              },
+              lastSummary
+            ).then(function () {
+              copiedMsg.textContent = "✓ Request sent to EmbryoOnCall — we'll be in touch soon. The summary below is your backup copy.";
+            }).catch(function () {
+              sending = false;
+              updateBuildState();
+              copiedMsg.textContent = "Couldn't auto-send — please copy the summary below and email it to ken@embryooncall.com.";
+            });
+          } else {
+            sending = false;
+            updateBuildState();
+            copiedMsg.textContent = "Couldn't auto-send — please copy the summary below and email it to ken@embryooncall.com.";
+          }
+        });
+
+        copyBtn.addEventListener("click", function () {
+          if (!lastSummary) return;
+          function done() { copiedMsg.textContent = "Copied — paste it into your message to us."; }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(lastSummary).then(done, function () { fallback(); });
+          } else {
+            fallback();
+          }
+          function fallback() {
+            var ta = document.createElement("textarea");
+            ta.value = lastSummary;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand("copy"); done(); } catch (err) { copiedMsg.textContent = "Select the summary above and copy it."; }
+            document.body.removeChild(ta);
+          }
+        });
+      })();
+    </script>
+
+
+    <script>
+      (function () {
+        var tab = document.getElementById("requestTab");
+        if (!tab) return;
+        Array.prototype.forEach.call(document.querySelectorAll('a[href="#request"]'), function (a) {
+          a.addEventListener("click", function () { tab.open = true; });
+        });
+        if (location.hash === "#request") tab.open = true;
+      })();
+    </script>
+  </body>
+</html>
