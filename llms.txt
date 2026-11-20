@@ -1,0 +1,9 @@
+# EmbryoOnCall
+
+> EmbryoOnCall places vetted per-diem IVF professionals into fertility and IVF labs nationwide — senior embryologists, andrologists, medical assistants, sonographers, and nurses with 5+ years of experience.
+
+## Pages
+
+- [EmbryoOnCall for Labs](https://embryooncall.com/): Per-diem IVF lab staffing for fertility clinics — how it works, the roles covered, and how to request cover.
+- [Traveler Portal](https://embryooncall.com/travelers.html): Information for embryologists and lab professionals interested in per-diem travel assignments, including sign-up and the traveler handbook.
+- [Traveler Handbook](https://embryooncall.com/traveler-handbook.pdf): Per-diem traveler handbook — pay, travel, and assignment terms.
